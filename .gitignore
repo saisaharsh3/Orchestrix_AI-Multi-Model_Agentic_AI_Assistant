@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+.env
+
+# Credentials
+credentials/
+token.json
+credentials.json
+
+# RAG artifacts
+
+*.faiss
+*.pkl
+pdf.index
+# Python cache
+__pycache__/
+*.pyc
+
+# OS / Editor
+.vscode/
+.DS_Store
+
+memory 
+pdfs 
