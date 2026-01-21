@@ -20,6 +20,15 @@ Email Management: Intent-based email drafting and sending with a confirmation sa
 
 Multimodal Input: Native support for Voice-to-Text and Text-to-Speech (TTS) for hands-free interaction.
 
+## FactLock System
+A core pillar of Orchestrix AI is the FactLock engine—a specialized agentic layer designed to eliminate hallucinations and ensure every response is anchored in evidence.
+
+Evidence-Based Grounding: Before a response is delivered, FactLock cross-references generated claims against your indexed PDFs (via RAG) or verified web sources.
+
+Confidence Scoring: Every output is assigned a "Grounding Score." If the model attempts to "hallucinate" information not found in the source, FactLock triggers a clarification or a "Missing Info" warning.
+
+Source Attribution: FactLock automatically extracts and links citations, ensuring that every factual assertion can be traced back to its origin in your documents or the web.
+
 ## System Architecture
 Orchestrix is built on a modular "Orchestrator" pattern:
 
