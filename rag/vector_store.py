@@ -135,7 +135,7 @@ class PDFVectorStore:
             if any(w in chunk.lower() for w in words)
         ]
 
-        # Deduplicate while preserving order
+        
         combined = []
         seen = set()
 
@@ -146,9 +146,7 @@ class PDFVectorStore:
 
         return combined[:top_k]
 
-    # ======================================================
-    # ✂ BETTER chunking (OVERLAP + TITLE PRESERVATION)
-    # ======================================================
+    
     def _split_text(self, text, chunk_size=800, overlap=120):
         words = text.split()
         chunks = []
