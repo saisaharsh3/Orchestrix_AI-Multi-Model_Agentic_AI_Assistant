@@ -13,7 +13,7 @@ def start_booking(movie, city, date_pref, time_pref):
 
     # For now just demonstrate flow
     return (
-        "🎬 Booking started in browser:\n"
+        "Booking started in browser:\n"
         f"Movie: {movie}\n"
         f"City: {city}\n"
         f"Date: {date_pref}\n"
