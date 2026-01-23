@@ -1,4 +1,5 @@
-Orchestrix AI: Multi-Model Agentic Assistant
+## Orchestrix AI: Multi-Model Agentic Assistant
+
 Orchestrix AI is a versatile, agentic AI assistant designed to bridge the gap between local LLMs and cloud-based APIs while offering real-time web access, document intelligence (RAG), and browser automation.
 
 Whether you need to chat with a local Ollama model for privacy or use Gemini for complex reasoning, Orchestrix manages the state and tools to get the job done.
