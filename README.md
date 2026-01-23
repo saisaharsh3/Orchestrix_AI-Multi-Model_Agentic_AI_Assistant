@@ -37,6 +37,6 @@ Whether you need to chat with a local Ollama model for privacy or use Gemini for
 
 - Orchestrator (core/orchestrator.py): The brain of the system. It routes user input through various "Intent Detectors" (Email, Web, Automation) before deciding whether to use RAG or Web Search.
 
--Vector Store (rag/vector_store.py): Handles PDF ingestion and semantic search.
+- Vector Store (rag/vector_store.py): Handles PDF ingestion and semantic search.
 
--Tooling: A robust suite of tools for web scraping, searching, and automation.
+- Tooling: A robust suite of tools for web scraping, searching, and automation.
