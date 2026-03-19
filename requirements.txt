@@ -1,29 +1,54 @@
+# ── Web framework ─────────────────────────────────────────────────────────
 fastapi
 uvicorn
 python-multipart
 pydantic
-ollama
+python-dotenv
+requests
 
+# ── LLM models ────────────────────────────────────────────────────────────
+ollama
 google-genai
 
-openai-whisper
+# ── Voice / Audio ─────────────────────────────────────────────────────────
 torch
 torchaudio
-pyttsx3
+openai-whisper
+# NOTE: ffmpeg is required but installed as a system tool, not via pip
+# Windows: extract to C:\ffmpeg-8.0.1-essentials_build and add bin\ to PATH
+# Verify with: ffmpeg -version
 
+# ── RAG / PDF ─────────────────────────────────────────────────────────────
 sentence-transformers
 faiss-cpu
 pypdf
+pdf2image
+pytesseract
+fpdf2
 
+# ── Google APIs ───────────────────────────────────────────────────────────
 google-api-python-client
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
 
-python-dotenv
-requests
-playwright
-ollama
-google-genai
-python-dotenv
-requests
+# ── Telegram bot ──────────────────────────────────────────────────────────
+python-telegram-bot
+
+# ── Scheduler ─────────────────────────────────────────────────────────────
+apscheduler
+
+# ── Finance / Stocks ──────────────────────────────────────────────────────
+yfinance
+
+# ── Web scraping / URL tools ──────────────────────────────────────────────
+beautifulsoup4
+
+# ── Search ────────────────────────────────────────────────────────────────
+ddgs
+httpx>=0.28.1
+
+# ── Text to speech (optional) ─────────────────────────────────────────────
+pyttsx3
+
+# ── Removed: playwright (replaced by ADB for phone automation) ────────────

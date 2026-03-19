@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orchestrix AI Benchmark Report</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 32px; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #f8fafc; }
+  .subtitle { color: #94a3b8; font-size: 14px; margin-bottom: 32px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 12px; color: #cbd5e1; border-left: 4px solid #6366f1; padding-left: 12px; }
+  h3 { font-size: 15px; font-weight: 600; margin: 24px 0 8px; color: #94a3b8; }
+
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px 24px; min-width: 180px; flex: 1; }
+  .card .label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .card .value { font-size: 28px; font-weight: 700; }
+  .card .value.green { color: #22c55e; }
+  .card .value.blue  { color: #60a5fa; }
+  .card .value.purple{ color: #a78bfa; }
+  .card .value.yellow{ color: #facc15; }
+
+  table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+  th { background: #0f172a; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px; text-align: left; }
+  td { padding: 12px 16px; border-top: 1px solid #334155; font-size: 14px; vertical-align: middle; }
+  tr:hover td { background: #263147; }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge.green  { background: #14532d; color: #22c55e; }
+  .badge.blue   { background: #1e3a5f; color: #60a5fa; }
+  .badge.yellow { background: #422006; color: #facc15; }
+  .badge.red    { background: #450a0a; color: #f87171; }
+  .badge.purple { background: #2e1065; color: #a78bfa; }
+
+  .footer { margin-top: 48px; color: #475569; font-size: 12px; text-align: center; }
+  .section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<h1>Orchestrix AI — Benchmark Report</h1>
+<p class="subtitle">Generated: March 19, 2026 12:19 PM &nbsp;|&nbsp; Total benchmark runs: 3</p>
+
+<!-- Summary Cards -->
+<div class="cards">
+  <div class="card">
+    <div class="label">Local (Llama3) Avg</div>
+    <div class="value green">1.12s</div>
+  </div>
+  <div class="card">
+    <div class="label">API (Gemini) Avg</div>
+    <div class="value yellow">1.98s</div>
+  </div>
+  <div class="card">
+    <div class="label">Speed Winner</div>
+    <div class="value purple">Local</div>
+  </div>
+  <div class="card">
+    <div class="label">FAISS Accuracy</div>
+    <div class="value green">100%</div>
+  </div>
+  <div class="card">
+    <div class="label">Keyword Accuracy</div>
+    <div class="value blue">100%</div>
+  </div>
+  <div class="card">
+    <div class="label">RAG Winner</div>
+    <div class="value purple">FAISS</div>
+  </div>
+</div>
+
+<!-- Latency Table -->
+<h2>Latency Benchmark — Local vs API</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Timestamp</th>
+      <th>Local (Llama3)</th>
+      <th>API (Gemini)</th>
+      <th>Winner</th>
+      <th>Difference</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+            <tr>
+                <td>1</td>
+                <td>2026-03-19 12:00:10</td>
+                <td style="color:#22c55e;font-weight:bold;">1.061s</td>
+                <td style="">1.943s</td>
+                <td class="badge green">Local</td>
+                <td>0.881s faster</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>2026-03-19 12:04:44</td>
+                <td style="color:#22c55e;font-weight:bold;">1.185s</td>
+                <td style="">2.014s</td>
+                <td class="badge green">Local</td>
+                <td>0.83s faster</td>
+            </tr>
+  </tbody>
+</table>
+
+<!-- RAG Summary Table -->
+<h2>RAG Accuracy Benchmark — FAISS vs Keyword Search</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Timestamp</th>
+      <th>FAISS Accuracy</th>
+      <th>Keyword Accuracy</th>
+      <th>FAISS Hits</th>
+      <th>Keyword Hits</th>
+      <th>Winner</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+            <tr>
+                <td>2</td>
+                <td>2026-03-19 12:04:44</td>
+                <td style="color:#22c55e;font-weight:bold;">100.0%</td>
+                <td style="">100.0%</td>
+                <td>5/5</td>
+                <td>5/5</td>
+                <td class="badge green">FAISS</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>2026-03-19 12:05:49</td>
+                <td style="color:#22c55e;font-weight:bold;">100.0%</td>
+                <td style="">100.0%</td>
+                <td>5/5</td>
+                <td>5/5</td>
+                <td class="badge green">FAISS</td>
+            </tr>
+  </tbody>
+</table>
+
+<!-- Query Detail Table -->
+<h2>RAG Query Detail — Per Query Results</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Run</th>
+      <th>Query</th>
+      <th>FAISS</th>
+      <th>FAISS Time</th>
+      <th>Keyword</th>
+      <th>Keyword Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+                <tr>
+                    <td>2.1</td>
+                    <td>2026-03-19 12:04:44</td>
+                    <td style="font-size:12px">PLAGIARISM REPORT...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>18.99ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>0.0ms</td>
+                </tr>
+                <tr>
+                    <td>2.2</td>
+                    <td>2026-03-19 12:04:44</td>
+                    <td style="font-size:12px">sensitive user information...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>6.0ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>0.0ms</td>
+                </tr>
+                <tr>
+                    <td>2.3</td>
+                    <td>2026-03-19 12:04:44</td>
+                    <td style="font-size:12px">ACKNOWLEDGEMENT I would like to extend my sincere gratitude ...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>7.0ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>1.0ms</td>
+                </tr>
+                <tr>
+                    <td>2.4</td>
+                    <td>2026-03-19 12:04:44</td>
+                    <td style="font-size:12px">dependencies...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>7.0ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>1.0ms</td>
+                </tr>
+                <tr>
+                    <td>2.5</td>
+                    <td>2026-03-19 12:04:44</td>
+                    <td style="font-size:12px">flow diagram outlines the step-by-step interaction between u...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>9.0ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>0.0ms</td>
+                </tr>
+                <tr>
+                    <td>3.1</td>
+                    <td>2026-03-19 12:05:49</td>
+                    <td style="font-size:12px">PLAGIARISM REPORT...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>19.56ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>1.0ms</td>
+                </tr>
+                <tr>
+                    <td>3.2</td>
+                    <td>2026-03-19 12:05:49</td>
+                    <td style="font-size:12px">sensitive user information...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>9.02ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>1.0ms</td>
+                </tr>
+                <tr>
+                    <td>3.3</td>
+                    <td>2026-03-19 12:05:49</td>
+                    <td style="font-size:12px">ACKNOWLEDGEMENT I would like to extend my sincere gratitude ...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>11.57ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>1.01ms</td>
+                </tr>
+                <tr>
+                    <td>3.4</td>
+                    <td>2026-03-19 12:05:49</td>
+                    <td style="font-size:12px">dependencies...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>8.5ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>0.5ms</td>
+                </tr>
+                <tr>
+                    <td>3.5</td>
+                    <td>2026-03-19 12:05:49</td>
+                    <td style="font-size:12px">flow diagram outlines the step-by-step interaction between u...</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>10.53ms</td>
+                    <td><span class="badge green">FOUND</span></td>
+                    <td>1.0ms</td>
+                </tr>
+  </tbody>
+</table>
+
+<div class="footer">
+  Orchestrix AI Benchmark Tool &nbsp;|&nbsp; Results from data/benchmark_results.json
+</div>
+
+</body>
+</html>
