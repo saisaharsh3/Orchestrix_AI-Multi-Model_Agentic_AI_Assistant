@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 PRICE_TRACK_FILE = "data/tracked_prices.json"
 os.makedirs("data", exist_ok=True)
 
-# Rotate between headers to avoid bot detection
+
 HEADERS_LIST = [
     {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -41,7 +41,7 @@ def _get_headers():
     return random.choice(HEADERS_LIST)
 
 
-# -- URL content extraction ---------------------------------------------------
+
 
 def fetch_url_text(url: str, max_chars: int = 6000) -> tuple[str, str]:
     try:
@@ -90,7 +90,7 @@ def summarize_url(url: str, generate_llm_fn=None, model_type: str = "api") -> st
     return f"Summary of: {title}\nURL: {url}\n\n{summary}"
 
 
-# -- Price extraction ---------------------------------------------------------
+
 
 AMAZON_SELECTORS = [
     {"id": "priceblock_ourprice"},
@@ -134,13 +134,13 @@ def _extract_price_from_soup(soup: BeautifulSoup, url: str) -> str | None:
             if clean and len(clean) >= 2:
                 return clean
 
-    # Try meta tags
+    
     for meta_prop in ["product:price:amount", "og:price:amount"]:
         meta = soup.find("meta", {"property": meta_prop})
         if meta and meta.get("content"):
             return meta["content"]
 
-    # Try JSON-LD
+    
     for script in soup.find_all("script", type="application/ld+json"):
         try:
             import json as _json
@@ -160,7 +160,7 @@ def _extract_price_from_soup(soup: BeautifulSoup, url: str) -> str | None:
 def _fetch_page(url: str) -> BeautifulSoup | None:
     try:
         session = requests.Session()
-        # Add cookies to look more like a real browser
+        
         session.headers.update(_get_headers())
         if "amazon" in url:
             session.headers["Referer"] = "https://www.google.com"
@@ -172,7 +172,7 @@ def _fetch_page(url: str) -> BeautifulSoup | None:
         return None
 
 
-# -- Price storage ------------------------------------------------------------
+
 
 def _load_tracked() -> dict:
     try:
@@ -189,7 +189,7 @@ def _save_tracked(data: dict):
         json.dump(data, f, indent=2)
 
 
-# -- Track price --------------------------------------------------------------
+
 
 def track_price(url: str, item_name: str = "") -> str:
     soup = _fetch_page(url)
@@ -205,7 +205,7 @@ def track_price(url: str, item_name: str = "") -> str:
     name  = item_name or title[:60]
 
     if not price_str:
-        # Still save the URL for future tracking even if price not found now
+        
         tracked   = _load_tracked()
         entry_key = url[:100]
         history   = tracked.get(entry_key, {}).get("history", [])
@@ -222,7 +222,7 @@ def track_price(url: str, item_name: str = "") -> str:
             f"Tip: Use 'show tracked prices' to see all tracked items."
         )
 
-    # Save to history
+    
     tracked   = _load_tracked()
     entry_key = url[:100]
     history   = tracked.get(entry_key, {}).get("history", [])

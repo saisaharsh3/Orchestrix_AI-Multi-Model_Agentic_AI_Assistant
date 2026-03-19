@@ -16,7 +16,7 @@ REPORTS_DIR = "reports"
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 
-# -- Text extraction ----------------------------------------------------------
+
 
 def _extract_text(path: str) -> str:
     if not PYPDF_AVAILABLE:
@@ -31,7 +31,7 @@ def _extract_text(path: str) -> str:
         return f"Error reading {path}: {e}"
 
 
-# -- Compare two PDFs ---------------------------------------------------------
+
 
 def compare_pdfs(
     path1: str,
@@ -50,7 +50,7 @@ def compare_pdfs(
     if text1.startswith("Error") or text2.startswith("Error"):
         return text1 if text1.startswith("Error") else text2
 
-    # Truncate to fit in context
+    
     text1 = text1[:3000]
     text2 = text2[:3000]
 
@@ -72,7 +72,7 @@ def compare_pdfs(
     return f"Comparison: {name1} vs {name2}\n\n{result}"
 
 
-# -- Generate PDF summary report ----------------------------------------------
+
 
 def generate_pdf_report(
     title: str,
@@ -112,7 +112,7 @@ def generate_pdf_report(
 
         # Content
         pdf.set_font("Helvetica", "", 11)
-        # Handle encoding — replace non-latin chars
+        
         safe_content = content.encode("latin-1", errors="replace").decode("latin-1")
 
         for line in safe_content.splitlines():
@@ -121,7 +121,7 @@ def generate_pdf_report(
                 pdf.ln(3)
                 continue
 
-            # Bold for lines that look like headers (all caps or ending with :)
+            
             if line.isupper() or (line.endswith(":") and len(line) < 60):
                 pdf.set_font("Helvetica", "B", 11)
                 pdf.multi_cell(0, 6, line)
@@ -136,7 +136,7 @@ def generate_pdf_report(
         return f"Error generating PDF report: {e}"
 
 
-# -- Summarize a PDF and save as report ---------------------------------------
+
 
 def summarize_pdf_to_report(
     pdf_path: str,

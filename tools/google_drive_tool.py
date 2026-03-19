@@ -63,7 +63,7 @@ def _format_file(f: dict) -> str:
     )
 
 
-# -- Search files -------------------------------------------------------------
+
 
 def search_drive(query: str, max_results: int = 8) -> str:
     try:
@@ -91,7 +91,7 @@ def search_drive(query: str, max_results: int = 8) -> str:
         return f"Error: {e}"
 
 
-# -- Recent files -------------------------------------------------------------
+
 
 def list_recent_files(max_results: int = 8) -> str:
     try:
@@ -119,7 +119,7 @@ def list_recent_files(max_results: int = 8) -> str:
         return f"Error: {e}"
 
 
-# -- Shared with me -----------------------------------------------------------
+
 
 def list_shared_files(max_results: int = 8) -> str:
     try:

@@ -9,7 +9,7 @@ import re
 
 EMAIL_REGEX = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
 
-# ── Intent detection ──────────────────────────────────────────────────────
+
 
 SEND_TRIGGERS = [
     "send an email", "send email", "mail to", "email to",
@@ -55,14 +55,14 @@ def detect_email_intent(text: str) -> str | None:
     if any(trigger in t for trigger in SEND_TRIGGERS):
         return "send"
 
-    # Loose pattern: "email John about meeting"
+    
     if re.search(r"email\s+\w+\s+about", t):
         return "send"
 
     return None
 
 
-# ── Field extraction ──────────────────────────────────────────────────────
+
 
 def extract_email_fields(text: str) -> dict:
     """
@@ -73,25 +73,25 @@ def extract_email_fields(text: str) -> dict:
         "to": None,
         "subject": None,
         "body": None,
-        "tone": "professional",   # default tone
+        "tone": "professional",   
         "missing": [],
     }
 
-    # ── Recipient: email address ──────────────────────────────────────────
+    
     match = re.search(EMAIL_REGEX, text)
     if match:
         result["to"] = match.group()
 
-    # ── Recipient: name fallback ("email John about...")
+    
     if not result["to"]:
         name_match = re.search(
             r"(?:email|mail|send\s+(?:an?\s+)?(?:email|mail))\s+(?:to\s+)?([A-Z][a-z]+)",
             text,
         )
         if name_match:
-            result["to"] = name_match.group(1)  # name, not address — flag as missing
+            result["to"] = name_match.group(1)  
 
-    # ── Subject extraction (multiple patterns) ────────────────────────────
+    
     patterns_subject = [
         r"(?:subject[:\s]+)(.+?)(?:\s+(?:saying|body|message|and\s+say)|$)",
         r"(?:about\s+)(.+?)(?:\s+(?:saying|body|message|telling|and\s+say)|$)",
@@ -104,7 +104,7 @@ def extract_email_fields(text: str) -> dict:
             result["subject"] = m.group(1).strip().title()
             break
 
-    # ── Body extraction (multiple patterns) ───────────────────────────────
+    
     patterns_body = [
         r"(?:saying|say|message|body|that\s+says?)[:\s]+(.+?)(?:\s+(?:subject|about|to\s+\S+@)|$)",
         r"(?:tell\s+(?:him|her|them)\s+)(.+?)$",
@@ -116,7 +116,7 @@ def extract_email_fields(text: str) -> dict:
             result["body"] = m.group(1).strip()
             break
 
-    # ── Tone detection ────────────────────────────────────────────────────
+    
     t = text.lower()
     if any(w in t for w in ["formal", "professional", "official"]):
         result["tone"] = "formal"
@@ -127,7 +127,7 @@ def extract_email_fields(text: str) -> dict:
     elif any(w in t for w in ["polite", "kind", "gentle"]):
         result["tone"] = "polite"
 
-    # ── Missing fields ────────────────────────────────────────────────────
+    
     if not result["to"] or "@" not in str(result["to"]):
         result["missing"].append("recipient email address")
     if not result["body"] and not result["subject"]:
@@ -136,7 +136,7 @@ def extract_email_fields(text: str) -> dict:
     return result
 
 
-# ── Smart body generator (used by orchestrator when body is vague) ────────
+
 
 def build_email_body(subject: str, raw_content: str, tone: str) -> str:
     """

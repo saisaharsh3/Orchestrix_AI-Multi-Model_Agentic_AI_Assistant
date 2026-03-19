@@ -24,7 +24,7 @@ os.makedirs("data", exist_ok=True)
 scheduler = AsyncIOScheduler(timezone=TIMEZONE)
 
 
-# -- Reminder storage ---------------------------------------------------------
+
 
 def _load_reminders() -> list:
     try:
@@ -41,7 +41,7 @@ def _save_reminders(reminders: list):
         json.dump(reminders, f, indent=2)
 
 
-# -- Send Telegram message (called by scheduler) ------------------------------
+
 
 async def _send_telegram_message(bot, chat_id: str, text: str):
     try:
@@ -50,7 +50,7 @@ async def _send_telegram_message(bot, chat_id: str, text: str):
         print(f"Scheduler send error: {e}")
 
 
-# -- Schedule a reminder ------------------------------------------------------
+
 
 def schedule_reminder(
     bot,
@@ -136,7 +136,7 @@ def cancel_reminder(keyword: str) -> str:
     return f"Cancelled {len(matched)} reminder(s) matching '{keyword}'."
 
 
-# -- Daily briefing -----------------------------------------------------------
+
 
 def setup_daily_briefing(bot, chat_id: str, generate_briefing_fn):
     """
@@ -161,7 +161,7 @@ def setup_daily_briefing(bot, chat_id: str, generate_briefing_fn):
     print(f"Daily briefing scheduled at {hour}:00 {TIMEZONE}")
 
 
-# -- Restore reminders on startup ---------------------------------------------
+
 
 def restore_reminders(bot, chat_id: str):
     """

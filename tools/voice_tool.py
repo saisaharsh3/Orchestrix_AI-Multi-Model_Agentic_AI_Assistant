@@ -8,7 +8,7 @@ import os
 import tempfile
 import subprocess
 
-# Add ffmpeg to PATH explicitly for Windows
+
 FFMPEG_DIRS = [
     r"C:\ffmpeg\ffmpeg-8.0.1-essentials_build\bin",
     r"C:\ffmpeg-8.0.1-essentials_build\bin",
@@ -53,7 +53,7 @@ def transcribe_audio(file_path: str) -> str:
     if not os.path.exists(file_path):
         return f"Error: Audio file not found: {file_path}"
 
-    # Verify ffmpeg is accessible
+    
     try:
         result = subprocess.run(
             ["ffmpeg", "-version"],
