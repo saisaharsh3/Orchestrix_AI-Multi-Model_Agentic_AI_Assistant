@@ -223,6 +223,7 @@ class PDFVectorStore:
                 if any(w in chunk.lower() for w in words)
             ]
 
+        # Deduplicate while preserving order
         combined = []
         seen = set()
         for chunk in semantic_hits + lexical_hits:
@@ -237,8 +238,11 @@ class PDFVectorStore:
 
         return combined[:top_k]
 
-    def _split_text(self, text: str, chunk_size: int = 200, overlap: int = 40) -> list[str]:
-        words  = text.split()
+    # ======================================================
+    # ✂ BETTER chunking (OVERLAP + TITLE PRESERVATION)
+    # ======================================================
+    def _split_text(self, text, chunk_size=800, overlap=120):
+        words = text.split()
         chunks = []
         i = 0
         while i < len(words):
