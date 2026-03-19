@@ -17,7 +17,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 
-# ── Scopes — expanded for read + send + draft ────────────────────────────
+
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.readonly",
@@ -32,7 +32,7 @@ CREDENTIALS_PATH = "credentials/credentials.json"
 TOKEN_PATH       = "credentials/token.json"
 
 
-# ── Auth ──────────────────────────────────────────────────────────────────
+
 
 def _get_gmail_service():
     creds = None
@@ -58,7 +58,7 @@ def _encode_message(msg: EmailMessage) -> dict:
     return {"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}
 
 
-# ── Send ──────────────────────────────────────────────────────────────────
+
 
 def send_email(to: str, subject: str, body: str) -> str:
     try:
@@ -72,14 +72,14 @@ def send_email(to: str, subject: str, body: str) -> str:
         service.users().messages().send(
             userId="me", body=_encode_message(msg)
         ).execute()
-        return f"✅ Email sent to {to}."
+        return f" Email sent to {to}."
     except HttpError as e:
-        return f"❌ Gmail error: {e}"
+        return f" Gmail error: {e}"
     except Exception as e:
-        return f"❌ Error sending email: {e}"
+        return f" Error sending email: {e}"
 
 
-# ── Draft ─────────────────────────────────────────────────────────────────
+
 
 def save_draft(to: str, subject: str, body: str) -> str:
     try:
@@ -94,14 +94,14 @@ def save_draft(to: str, subject: str, body: str) -> str:
             userId="me",
             body={"message": _encode_message(msg)},
         ).execute()
-        return f"📝 Draft saved (To: {to}, Subject: {subject})."
+        return f" Draft saved (To: {to}, Subject: {subject})."
     except HttpError as e:
-        return f"❌ Gmail error: {e}"
+        return f" Gmail error: {e}"
     except Exception as e:
-        return f"❌ Error saving draft: {e}"
+        return f" Error saving draft: {e}"
 
 
-# ── Read inbox ────────────────────────────────────────────────────────────
+
 
 def read_inbox(max_results: int = 5, unread_only: bool = True) -> list[dict]:
     """
@@ -146,11 +146,11 @@ def read_inbox(max_results: int = 5, unread_only: bool = True) -> list[dict]:
 
 def format_inbox(emails: list[dict]) -> str:
     if not emails:
-        return "📭 No unread emails."
+        return " No unread emails."
     if "error" in emails[0]:
-        return f"❌ {emails[0]['error']}"
+        return f" {emails[0]['error']}"
 
-    lines = [f"📬 *{len(emails)} unread email(s):*\n"]
+    lines = [f" *{len(emails)} unread email(s):*\n"]
     for i, e in enumerate(emails, 1):
         lines.append(
             f"*{i}.* From: {e['from']}\n"
@@ -160,7 +160,7 @@ def format_inbox(emails: list[dict]) -> str:
     return "\n".join(lines)
 
 
-# ── Get full email body ───────────────────────────────────────────────────
+
 
 def get_email_body(message_id: str) -> str:
     try:
@@ -180,7 +180,7 @@ def get_email_body(message_id: str) -> str:
                     break
 
         if not body:
-            # Single-part email
+            
             data = msg.get("payload", {}).get("body", {}).get("data", "")
             if data:
                 body = base64.urlsafe_b64decode(data).decode("utf-8", errors="ignore")
@@ -188,16 +188,16 @@ def get_email_body(message_id: str) -> str:
         return body.strip() or "(empty body)"
 
     except Exception as e:
-        return f"❌ Could not read email: {e}"
+        return f" Could not read email: {e}"
 
 
-# ── Reply ─────────────────────────────────────────────────────────────────
+
 
 def reply_to_email(message_id: str, body: str) -> str:
     try:
         service = _get_gmail_service()
 
-        # Get original message headers
+        
         orig = service.users().messages().get(
             userId="me", id=message_id, format="metadata",
             metadataHeaders=["From", "Subject", "Message-ID", "To"],
@@ -223,15 +223,15 @@ def reply_to_email(message_id: str, body: str) -> str:
         encoded["threadId"] = thread_id
 
         service.users().messages().send(userId="me", body=encoded).execute()
-        return f"✅ Reply sent to {reply_to}."
+        return f" Reply sent to {reply_to}."
 
     except HttpError as e:
-        return f"❌ Gmail error: {e}"
+        return f" Gmail error: {e}"
     except Exception as e:
-        return f"❌ Reply failed: {e}"
+        return f" Reply failed: {e}"
 
 
-# ── Forward ───────────────────────────────────────────────────────────────
+
 
 def forward_email(message_id: str, to: str, note: str = "") -> str:
     try:
@@ -269,15 +269,15 @@ def forward_email(message_id: str, to: str, note: str = "") -> str:
         service.users().messages().send(
             userId="me", body=_encode_message(msg)
         ).execute()
-        return f"✅ Email forwarded to {to}."
+        return f" Email forwarded to {to}."
 
     except HttpError as e:
-        return f"❌ Gmail error: {e}"
+        return f" Gmail error: {e}"
     except Exception as e:
-        return f"❌ Forward failed: {e}"
+        return f" Forward failed: {e}"
 
 
-# ── Search emails ─────────────────────────────────────────────────────────
+
 
 def search_emails(query: str, max_results: int = 5) -> str:
     try:
@@ -288,7 +288,7 @@ def search_emails(query: str, max_results: int = 5) -> str:
 
         messages = results.get("messages", [])
         if not messages:
-            return f"🔍 No emails found for: *{query}*"
+            return f" No emails found for: *{query}*"
 
         emails = []
         for m in messages:
@@ -303,7 +303,7 @@ def search_emails(query: str, max_results: int = 5) -> str:
                 f"  Date: {headers.get('Date','?')}"
             )
 
-        return f"🔍 Found {len(emails)} email(s) for *{query}*:\n\n" + "\n\n".join(emails)
+        return f" Found {len(emails)} email(s) for *{query}*:\n\n" + "\n\n".join(emails)
 
     except Exception as e:
-        return f"❌ Search failed: {e}"
+        return f" Search failed: {e}"

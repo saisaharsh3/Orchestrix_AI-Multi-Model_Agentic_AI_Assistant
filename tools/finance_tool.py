@@ -15,7 +15,7 @@ except ImportError:
     YFINANCE_AVAILABLE = False
 
 
-# -- Currency conversion ------------------------------------------------------
+
 
 def convert_currency(amount: float, from_curr: str, to_curr: str) -> str:
     from_curr = from_curr.upper()
@@ -53,7 +53,7 @@ def convert_currency(amount: float, from_curr: str, to_curr: str) -> str:
         return f"Error converting currency: {e}"
 
 
-# -- Stock prices -------------------------------------------------------------
+
 
 def get_stock_price(ticker: str) -> str:
     if not YFINANCE_AVAILABLE:
@@ -61,7 +61,7 @@ def get_stock_price(ticker: str) -> str:
 
     ticker = ticker.upper()
 
-    # Common Indian stock ticker fixes
+    
     indian_fixes = {
         "TCS":        "TCS.NS",
         "INFOSYS":    "INFY.NS",

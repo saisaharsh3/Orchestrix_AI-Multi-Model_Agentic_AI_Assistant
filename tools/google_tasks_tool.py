@@ -48,7 +48,7 @@ def _get_default_tasklist(service) -> str:
     return items[0]["id"] if items else "@default"
 
 
-# -- Add task -----------------------------------------------------------------
+
 
 def add_task(title: str, notes: str = "", due: str = "") -> str:
     try:
@@ -75,7 +75,7 @@ def add_task(title: str, notes: str = "", due: str = "") -> str:
         return f"Error: {e}"
 
 
-# -- List tasks ---------------------------------------------------------------
+
 
 def list_tasks(show_completed: bool = False) -> str:
     try:
@@ -114,7 +114,7 @@ def list_tasks(show_completed: bool = False) -> str:
         return f"Error: {e}"
 
 
-# -- Complete task ------------------------------------------------------------
+
 
 def complete_task(title_keyword: str) -> str:
     try:
@@ -143,7 +143,7 @@ def complete_task(title_keyword: str) -> str:
         return f"Error: {e}"
 
 
-# -- Delete task --------------------------------------------------------------
+
 
 def delete_task(title_keyword: str) -> str:
     try:

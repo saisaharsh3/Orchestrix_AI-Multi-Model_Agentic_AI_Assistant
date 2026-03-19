@@ -33,11 +33,11 @@ SCOPES = [
 CREDENTIALS_PATH = "credentials/credentials.json"
 TOKEN_PATH       = "credentials/token.json"
 
-# Default timezone — update to yours
+
 DEFAULT_TIMEZONE = "Asia/Kolkata"
 
 
-# ── Auth (shared with Gmail, same token) ──────────────────────────────────
+
 
 def _get_calendar_service():
     creds = None
@@ -59,7 +59,7 @@ def _get_calendar_service():
     return build("calendar", "v3", credentials=creds)
 
 
-# ── Add event (structured) ────────────────────────────────────────────────
+
 
 def add_event(
     title: str,
@@ -92,21 +92,21 @@ def add_event(
         created = service.events().insert(calendarId="primary", body=event).execute()
         link    = created.get("htmlLink", "")
         return (
-            f"📅 Event added!\n"
+            f" Event added!\n"
             f"*{title}*\n"
-            f"🕐 {start.strftime('%b %d, %Y %I:%M %p')}"
+            f" {start.strftime('%b %d, %Y %I:%M %p')}"
             + (f" → {end.strftime('%I:%M %p')}" if end else "")
-            + (f"\n📍 {location}" if location else "")
-            + (f"\n🔗 {link}" if link else "")
+            + (f"\n {location}" if location else "")
+            + (f"\n {link}" if link else "")
         )
 
     except HttpError as e:
-        return f"❌ Calendar error: {e}"
+        return f" Calendar error: {e}"
     except Exception as e:
-        return f"❌ Failed to add event: {e}"
+        return f" Failed to add event: {e}"
 
 
-# ── Quick add (Google's natural language parser) ──────────────────────────
+
 
 def quick_add_event(text: str) -> str:
     """
@@ -126,19 +126,19 @@ def quick_add_event(text: str) -> str:
             start_str = dt.strftime("%b %d, %Y %I:%M %p")
 
         return (
-            f"📅 Event added!\n"
+            f" Event added!\n"
             f"*{title}*\n"
-            + (f"🕐 {start_str}\n" if start_str else "")
-            + (f"🔗 {link}" if link else "")
+            + (f" {start_str}\n" if start_str else "")
+            + (f" {link}" if link else "")
         )
 
     except HttpError as e:
-        return f"❌ Calendar error: {e}"
+        return f" Calendar error: {e}"
     except Exception as e:
-        return f"❌ Quick add failed: {e}"
+        return f" Quick add failed: {e}"
 
 
-# ── List upcoming events ──────────────────────────────────────────────────
+
 
 def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
     try:
@@ -158,9 +158,9 @@ def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
         events = events_result.get("items", [])
 
         if not events:
-            return f"📭 No events in the next {days_ahead} day(s)."
+            return f" No events in the next {days_ahead} day(s)."
 
-        lines = [f"📅 *Upcoming events ({days_ahead} days):*\n"]
+        lines = [f" *Upcoming events ({days_ahead} days):*\n"]
         for e in events:
             start = e["start"].get("dateTime", e["start"].get("date", ""))
             try:
@@ -175,19 +175,19 @@ def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
             location = e.get("location", "")
             lines.append(
                 f"• *{title}*\n"
-                f"  🕐 {time_str}"
-                + (f"  📍 {location}" if location else "")
+                f"   {time_str}"
+                + (f"   {location}" if location else "")
             )
 
         return "\n".join(lines)
 
     except HttpError as e:
-        return f"❌ Calendar error: {e}"
+        return f" Calendar error: {e}"
     except Exception as e:
-        return f"❌ Could not fetch events: {e}"
+        return f" Could not fetch events: {e}"
 
 
-# ── Delete event by title (finds first match) ─────────────────────────────
+
 
 def delete_event(title: str) -> str:
     try:
@@ -205,22 +205,22 @@ def delete_event(title: str) -> str:
 
         events = results.get("items", [])
         if not events:
-            return f"❌ No upcoming event found matching *{title}*."
+            return f" No upcoming event found matching *{title}*."
 
         event    = events[0]
         event_id = event["id"]
         name     = event.get("summary", title)
 
         service.events().delete(calendarId="primary", eventId=event_id).execute()
-        return f"🗑️ Event deleted: *{name}*"
+        return f" Event deleted: *{name}*"
 
     except HttpError as e:
-        return f"❌ Calendar error: {e}"
+        return f" Calendar error: {e}"
     except Exception as e:
-        return f"❌ Delete failed: {e}"
+        return f" Delete failed: {e}"
 
 
-# ── Natural language date/time parser ────────────────────────────────────
+
 
 def parse_event_datetime(text: str) -> datetime | None:
     """
@@ -293,5 +293,5 @@ def parse_event_datetime(text: str) -> datetime | None:
     if hour is not None:
         return base.replace(hour=hour, minute=minute, second=0, microsecond=0)
 
-    # No time found — default to 9am
+    
     return base.replace(hour=9, minute=0, second=0, microsecond=0)
