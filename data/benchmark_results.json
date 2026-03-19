@@ -1,0 +1,113 @@
+[
+  {
+    "timestamp": "2026-03-19T12:00:10.509720",
+    "latency": {
+      "local_avg_seconds": 1.061,
+      "api_avg_seconds": 1.943,
+      "faster": "Local",
+      "difference_seconds": 0.881
+    },
+    "rag": {}
+  },
+  {
+    "timestamp": "2026-03-19T12:04:44.645604",
+    "latency": {
+      "local_avg_seconds": 1.185,
+      "api_avg_seconds": 2.014,
+      "faster": "Local",
+      "difference_seconds": 0.83
+    },
+    "rag": {
+      "faiss_accuracy_pct": 100.0,
+      "keyword_accuracy_pct": 100.0,
+      "faiss_hits": 5,
+      "keyword_hits": 5,
+      "total_queries": 5,
+      "details": [
+        {
+          "query": "PLAGIARISM REPORT",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 18.99,
+          "keyword_ms": 0.0
+        },
+        {
+          "query": "sensitive user information",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 6.0,
+          "keyword_ms": 0.0
+        },
+        {
+          "query": "ACKNOWLEDGEMENT I would like to extend my sincere gratitude to our distinguished Chairman, Sri",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 7.0,
+          "keyword_ms": 1.0
+        },
+        {
+          "query": "dependencies",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 7.0,
+          "keyword_ms": 1.0
+        },
+        {
+          "query": "flow diagram outlines the step-by-step interaction between users and the system",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 9.0,
+          "keyword_ms": 0.0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-19T12:05:49.195453",
+    "latency": {},
+    "rag": {
+      "faiss_accuracy_pct": 100.0,
+      "keyword_accuracy_pct": 100.0,
+      "faiss_hits": 5,
+      "keyword_hits": 5,
+      "total_queries": 5,
+      "details": [
+        {
+          "query": "PLAGIARISM REPORT",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 19.56,
+          "keyword_ms": 1.0
+        },
+        {
+          "query": "sensitive user information",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 9.02,
+          "keyword_ms": 1.0
+        },
+        {
+          "query": "ACKNOWLEDGEMENT I would like to extend my sincere gratitude to our distinguished Chairman, Sri",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 11.57,
+          "keyword_ms": 1.01
+        },
+        {
+          "query": "dependencies",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 8.5,
+          "keyword_ms": 0.5
+        },
+        {
+          "query": "flow diagram outlines the step-by-step interaction between users and the system",
+          "faiss_found": true,
+          "keyword_found": true,
+          "faiss_ms": 10.53,
+          "keyword_ms": 1.0
+        }
+      ]
+    }
+  }
+]
