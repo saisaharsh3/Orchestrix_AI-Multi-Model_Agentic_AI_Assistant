@@ -37,6 +37,12 @@ DRAFT_TRIGGERS = [
     "draft email", "save draft",
 ]
 
+AI_GENERATION_TRIGGERS = [
+    "use ai", "use ai to write", "ai write", "ai generate",
+    "let ai write", "have ai write", "let ai compose",
+    "have ai compose", "ai compose", "ai write about",
+]
+
 
 def detect_email_intent(text: str) -> str | None:
     """
@@ -62,23 +68,40 @@ def detect_email_intent(text: str) -> str | None:
     return None
 
 
+def should_use_ai_generation(text: str) -> bool:
+    """
+    Check if user wants AI to generate email content.
+    Keywords: 'use ai', 'ai write', 'ai generate', etc.
+    """
+    t = text.lower()
+    return any(trigger in t for trigger in AI_GENERATION_TRIGGERS)
 
 
 def extract_email_fields(text: str) -> dict:
     """
     Smartly extract to, subject, body, tone from natural language.
     Returns dict with 'missing' list if required fields absent.
+    Detects 'use ai' keyword to trigger AI-based email generation.
     """
+    # Check if AI generation requested before processing
+    use_ai = should_use_ai_generation(text)
+    
+    # Remove AI keywords from text to avoid interfering with extraction
+    clean_text = text
+    for trigger in AI_GENERATION_TRIGGERS:
+        clean_text = clean_text.lower().replace(trigger, " ")
+    
     result = {
         "to": None,
         "subject": None,
         "body": None,
         "tone": "professional",   
+        "use_ai": use_ai,
         "missing": [],
     }
 
     
-    match = re.search(EMAIL_REGEX, text)
+    match = re.search(EMAIL_REGEX, clean_text)
     if match:
         result["to"] = match.group()
 
@@ -86,7 +109,7 @@ def extract_email_fields(text: str) -> dict:
     if not result["to"]:
         name_match = re.search(
             r"(?:email|mail|send\s+(?:an?\s+)?(?:email|mail))\s+(?:to\s+)?([A-Z][a-z]+)",
-            text,
+            clean_text,
         )
         if name_match:
             result["to"] = name_match.group(1)  
@@ -99,7 +122,7 @@ def extract_email_fields(text: str) -> dict:
         r"(?:topic[:\s]+)(.+?)(?:\s+(?:saying|body|message)|$)",
     ]
     for pattern in patterns_subject:
-        m = re.search(pattern, text, re.IGNORECASE)
+        m = re.search(pattern, clean_text, re.IGNORECASE)
         if m:
             result["subject"] = m.group(1).strip().title()
             break
@@ -111,13 +134,13 @@ def extract_email_fields(text: str) -> dict:
         r"(?:content[:\s]+)(.+?)$",
     ]
     for pattern in patterns_body:
-        m = re.search(pattern, text, re.IGNORECASE)
+        m = re.search(pattern, clean_text, re.IGNORECASE)
         if m:
             result["body"] = m.group(1).strip()
             break
 
     
-    t = text.lower()
+    t = clean_text.lower()
     if any(w in t for w in ["formal", "professional", "official"]):
         result["tone"] = "formal"
     elif any(w in t for w in ["friendly", "casual", "informal", "warm"]):

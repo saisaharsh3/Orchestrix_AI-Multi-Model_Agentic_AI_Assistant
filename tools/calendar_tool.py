@@ -143,13 +143,24 @@ def quick_add_event(text: str) -> str:
 def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
     try:
         service  = _get_calendar_service()
-        now      = datetime.utcnow()
+        
+        # Use local timezone for calculations
+        tz = ZoneInfo(DEFAULT_TIMEZONE)
+        now = datetime.now(tz)
         end_time = now + timedelta(days=days_ahead)
+
+        # Convert to UTC for the API (RFC 3339 format with Z)
+        # The API needs UTC times, so convert from local to UTC
+        now_utc = now.astimezone(ZoneInfo("UTC"))
+        end_utc = end_time.astimezone(ZoneInfo("UTC"))
+        
+        timeMin = now_utc.isoformat().replace("+00:00", "Z")
+        timeMax = end_utc.isoformat().replace("+00:00", "Z")
 
         events_result = service.events().list(
             calendarId="primary",
-            timeMin=now.isoformat() + "Z",
-            timeMax=end_time.isoformat() + "Z",
+            timeMin=timeMin,
+            timeMax=timeMax,
             maxResults=max_results,
             singleEvents=True,
             orderBy="startTime",
@@ -192,11 +203,18 @@ def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
 def delete_event(title: str) -> str:
     try:
         service = _get_calendar_service()
-        now     = datetime.utcnow()
+        
+        # Use local timezone
+        tz = ZoneInfo(DEFAULT_TIMEZONE)
+        now = datetime.now(tz)
+        
+        # Convert to UTC for the API
+        now_utc = now.astimezone(ZoneInfo("UTC"))
+        timeMin = now_utc.isoformat().replace("+00:00", "Z")
 
         results = service.events().list(
             calendarId="primary",
-            timeMin=now.isoformat() + "Z",
+            timeMin=timeMin,
             maxResults=20,
             singleEvents=True,
             orderBy="startTime",
