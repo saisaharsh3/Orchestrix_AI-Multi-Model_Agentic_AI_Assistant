@@ -65,7 +65,7 @@ quick_auto_label.py
 calendar_diagnostic.py
 find_all_calendars.py
 
-# Development & Temporary Markdown Files (NOT for GitHub)
+# Development & Temporary Markdown Files (NOT for GitHub - Dev Notes Only)
 TASKS_FIX_COMPLETE.md
 SOLO_SPRINT_TODAY.md
 TASK_FEATURE_QUICK_START.md
@@ -83,6 +83,7 @@ IMPLEMENTATION_COMPLETE.md
 PRODUCTION_SPRINT_IMPLEMENTATION_GUIDE.md
 MEMORY_SYSTEM_UPDATE.md
 ENHANCEMENT_ROADMAP.md
+EVALUATION_METHODOLOGY.md
 
 # Temporary Voice & Media Files
 temp_voice_*.ogg
