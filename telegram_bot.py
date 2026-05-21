@@ -5,6 +5,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 
+from core.logger import get_logger
+
+logger = get_logger(__name__)
+
 from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -17,6 +21,9 @@ from telegram.ext import (
 from core.orchestrator import generate_response
 from core.model_manager import generate_llm
 from rag.vector_store import PDFVectorStore
+from core.tone_controller import tone_controller
+from core.conversation_memory import conversation_memory
+from tools.smart_search import smart_search
 
 from tools.weather_tool import get_weather, get_forecast
 from tools.finance_tool import convert_currency, get_stock_price, get_crypto_price
@@ -87,7 +94,6 @@ def _parse_reminder_time(time_str: str, day: str = "today") -> datetime | None:
         else:
             base = now
         dt = base.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        # Only auto-advance for today if time already passed
         if day == "today" and dt <= now:
             dt += timedelta(days=1)
         return dt
@@ -117,7 +123,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/rag on|off - toggle PDF mode\n"
         "/clearpdf   - clear PDFs\n"
         "/status     - current settings\n"
-        "/reminders  - list reminders\n\n"
+        "/reminders  - list reminders\n"
+        "/share_location - share your location for maps\n\n"
         "What you can say:\n"
         "- weather in Mumbai\n"
         "- convert 500 USD to INR\n"
@@ -128,10 +135,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "- remind me to call mom at 6pm\n"
         "- summarize https://...\n"
         "- track price https://...\n"
+        "- find restaurants nearby\n"
+        "- directions to airport\n"
         "- compare the two PDFs\n"
         "- open youtube / set alarm for 7am\n\n"
         "Send a voice message to transcribe it.\n"
-        "Send a PDF to index it for Q&A."
+        "Send a PDF to index it for Q&A.\n"
+        "Send a location pin to use maps features."
     )
 
 
@@ -141,14 +151,28 @@ async def status_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def set_api(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global model
+    from config.settings import UserPreferences
     model = "api"
-    await update.message.reply_text("Switched to API model" + status_text())
+    user_id = str(update.effective_user.id)
+    # ✅ SAVE preference to persist across sessions
+    try:
+        UserPreferences.set_user_pref(user_id, "preferred_model", "api")
+    except Exception as e:
+        logger.debug(f"Failed to save API preference: {e}")
+    await update.message.reply_text("Switched to API model " + status_text())
 
 
 async def set_local(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global model
+    from config.settings import UserPreferences
     model = "local"
-    await update.message.reply_text("Switched to LOCAL model" + status_text())
+    user_id = str(update.effective_user.id)
+    # ✅ SAVE preference to persist across sessions
+    try:
+        UserPreferences.set_user_pref(user_id, "preferred_model", "local")
+    except Exception as e:
+        logger.debug(f"Failed to save local preference: {e}")
+    await update.message.reply_text("Switched to LOCAL model " + status_text())
 
 
 async def web_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -180,6 +204,36 @@ async def reminders_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(list_reminders())
 
 
+async def stealth_mode_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    from config.settings import UserPreferences
+    user_id = str(update.effective_user.id)
+    
+    if not context.args or context.args[0].lower() not in {"on", "off"}:
+        await update.message.reply_text(
+            "Usage: /stealth_mode on or /stealth_mode off\n\n"
+            "Stealth Mode removes stylometric markers from your queries\n"
+            "to prevent identity linkage attacks (Experiment 5).\n"
+            "See: research/EXPERIMENT_5_CRITICAL_BRIEFING.md"
+        )
+        return
+    
+    enabled = context.args[0].lower() == "on"
+    
+    try:
+        UserPreferences.set_user_pref(user_id, "stealth_mode", enabled)
+        status = " ENABLED - Stylometric defense active" if enabled else "❌ DISABLED - No defense"
+        await update.message.reply_text(
+            f"Stealth Mode {status}\n\n"
+            f"Defense Level: Phase 1 (18.5% reduction)\n"
+            f"Effectiveness: Partial (some users still vulnerable)\n"
+            f"Research: research/EXPERIMENT_5_CRITICAL_BRIEFING.md"
+        )
+        logger.info(f"Stealth Mode {'enabled' if enabled else 'disabled'}", extra={"user_id": user_id})
+    except Exception as e:
+        logger.debug(f"Failed to set stealth mode: {e}")
+        await update.message.reply_text(f"Error: {e}")
+
+
 async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global use_pdf
     document = update.message.document
@@ -201,9 +255,12 @@ async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{count} chunks added. RAG is now ON.\n"
             + ("2 PDFs loaded. Say 'compare the two PDFs' to compare." if len(pending_pdfs) == 2 else "")
         )
+        logger.info(f"PDF loaded successfully", extra={"file": document.file_name, "chunks": count})
     except ValueError as e:
+        logger.warning(f"PDF validation error: {e}", extra={"user_id": update.effective_user.id})
         await update.message.reply_text(f"Warning: {e}")
     except Exception as e:
+        logger.error(f"PDF processing failed", exc_info=True, extra={"user_id": update.effective_user.id})
         await update.message.reply_text(f"PDF processing error:\n{e}")
 
 
@@ -216,6 +273,7 @@ async def clear_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)  # ✅ ADD: Get user_id
     if not VOICE_AVAILABLE:
         await update.message.reply_text(
             "Voice not available.\n"
@@ -244,7 +302,9 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pdf_store=pdf_store,
             use_web=use_web,
             use_pdf=use_pdf,
+            user_id=user_id,  # ✅ ADD: Pass user_id
         )
+        conversation_memory.add_turn(transcript, response)
         MAX_LEN = 4096
         for i in range(0, len(response), MAX_LEN):
             await update.message.reply_text(response[i:i + MAX_LEN])
@@ -252,111 +312,51 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Voice error: {e}")
 
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_message_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
     user_input = update.message.text
-    chat_id    = str(update.effective_chat.id)
-    lower      = user_input.lower()
-
+    
+    # Show thinking status
     await update.message.reply_text("Thinking...")
+    
+    response = generate_response(
+        user_input=user_input,
+        model_type=model,
+        pdf_store=pdf_store,
+        use_web=use_web,
+        use_pdf=use_pdf,
+        user_id=user_id,
+    )
+    
+    # Split long responses into chunks (Telegram limit: 4096 chars)
+    MAX_LEN = 4096
+    for i in range(0, len(response), MAX_LEN):
+        await update.message.reply_text(response[i:i + MAX_LEN])
 
-    feat = detect_feature_intent(user_input)
-    if feat:
-        t = feat["type"]
-        result = None
 
-        if t == "weather_current":
-            result = get_weather(feat["city"])
-        elif t == "weather_forecast":
-            result = get_forecast(feat["city"], days=3)
-        elif t == "currency_convert":
-            result = convert_currency(feat["amount"], feat["from_curr"], feat["to_curr"])
-        elif t == "stock_price":
-            result = get_stock_price(feat["ticker"])
-        elif t == "crypto_price":
-            result = get_crypto_price(feat["symbol"])
-        elif t == "summarize_url":
-            await update.message.reply_text("Fetching and summarizing URL...")
-            result = summarize_url(feat["url"], generate_llm, model)
-        elif t == "track_price":
-            result = track_price(feat["url"])
-        elif t == "show_tracked_prices":
-            result = show_tracked_prices()
-        elif t == "task_add":
-            result = add_task(feat["title"])
-        elif t == "task_list":
-            result = list_tasks()
-        elif t == "task_complete":
-            result = complete_task(feat["keyword"])
-        elif t == "task_delete":
-            result = delete_task(feat["keyword"])
-        elif t == "drive_search":
-            result = search_drive(feat["query"])
-        elif t == "drive_recent":
-            result = list_recent_files()
-        elif t == "drive_shared":
-            result = list_shared_files()
-        elif t == "reminder_set":
-            dt = _parse_reminder_time(feat["time"], feat.get("day", "today"))
-            if dt:
-                bot    = context.application.bot
-                result = schedule_reminder(bot, chat_id, feat["message"], dt)
-            else:
-                result = "Could not parse reminder time. Try: remind me to call mom at 6pm"
-        elif t == "reminder_list":
-            result = list_reminders()
-        elif t == "reminder_cancel":
-            result = cancel_reminder(feat["keyword"])
-        elif t == "pdf_compare":
-            if len(pending_pdfs) < 2:
-                result = "Please upload two PDFs first, then say 'compare the two PDFs'."
-            else:
-                from tools.pdf_compare_tool import compare_pdfs
-                await update.message.reply_text("Comparing PDFs...")
-                result = compare_pdfs(pending_pdfs[0], pending_pdfs[1], generate_llm, model)
-        elif t == "pdf_report":
-            if not pdf_store.loaded_files:
-                result = "No PDF loaded. Send a PDF first."
-            else:
-                from tools.pdf_compare_tool import summarize_pdf_to_report
-                await update.message.reply_text("Generating PDF report...")
-                pdf_name = list(pdf_store.loaded_files)[0]
-                pdf_path = os.path.join(PDF_DIR, pdf_name)
-                output   = summarize_pdf_to_report(pdf_path, generate_llm, model)
-                if output.startswith("Error"):
-                    result = output
-                else:
-                    await update.message.reply_document(
-                        document=open(output, "rb"),
-                        filename=os.path.basename(output),
-                        caption=f"Summary report for {pdf_name}",
-                    )
-                    result = None
-
-        if result:
-            MAX_LEN = 4096
-            for i in range(0, len(result), MAX_LEN):
-                await update.message.reply_text(result[i:i + MAX_LEN])
-        return
-
-    if not use_pdf and any(w in lower for w in ("pdf", "document", "file")):
-        if pdf_store.text_chunks:
-            await update.message.reply_text(
-                "Tip: A PDF is loaded but RAG is OFF. Send /rag on to query it."
-            )
-
-    try:
-        response = generate_response(
-            user_input=user_input,
-            model_type=model,
-            pdf_store=pdf_store,
-            use_web=use_web,
-            use_pdf=use_pdf,
-        )
-        MAX_LEN = 4096
-        for i in range(0, len(response), MAX_LEN):
-            await update.message.reply_text(response[i:i + MAX_LEN])
-    except Exception as e:
-        await update.message.reply_text(f"Error:\n{e}")
+async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    latitude = update.message.location.latitude
+    longitude = update.message.location.longitude
+    
+    await update.message.reply_text("Saving your location...")
+    
+    # Send location to orchestrator as special command
+    location_input = f"/location:{latitude}:{longitude}:Current Location"
+    
+    response = generate_response(
+        user_input=location_input,
+        model_type=model,
+        pdf_store=pdf_store,
+        use_web=use_web,
+        use_pdf=use_pdf,
+        user_id=user_id,
+    )
+    
+    # Split long responses into chunks
+    MAX_LEN = 4096
+    for i in range(0, len(response), MAX_LEN):
+        await update.message.reply_text(response[i:i + MAX_LEN])
 
 
 def main():
@@ -365,10 +365,9 @@ def main():
         if CHAT_ID:
             restore_reminders(application.bot, CHAT_ID)
             setup_daily_briefing(application.bot, CHAT_ID, _daily_briefing)
+            logger.info(f"Telegram bot initialized with chat ID: {CHAT_ID}")
         else:
-            print(
-                "Warning: TELEGRAM_CHAT_ID not set in .env"
-            )
+            logger.warning("TELEGRAM_CHAT_ID not set in .env - reminders disabled")
 
     app = (
         ApplicationBuilder()
@@ -377,6 +376,7 @@ def main():
         .build()
     )
 
+    # Command handlers
     app.add_handler(CommandHandler("start",     start))
     app.add_handler(CommandHandler("status",    status_cmd))
     app.add_handler(CommandHandler("api",       set_api))
@@ -385,12 +385,15 @@ def main():
     app.add_handler(CommandHandler("rag",       rag_cmd))
     app.add_handler(CommandHandler("clearpdf",  clear_pdf))
     app.add_handler(CommandHandler("reminders", reminders_cmd))
+    app.add_handler(CommandHandler("stealth_mode", stealth_mode_cmd))
 
-    app.add_handler(MessageHandler(filters.Document.PDF, handle_pdf))
-    app.add_handler(MessageHandler(filters.VOICE,        handle_voice))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    # Message handlers (order matters!)
+    app.add_handler(MessageHandler(filters.Document.PDF,               handle_pdf))
+    app.add_handler(MessageHandler(filters.VOICE,                      handle_voice))
+    app.add_handler(MessageHandler(filters.LOCATION,                   handle_location))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND,    handle_message_text))
 
-    print("Telegram bot running...")
+    logger.info(" Telegram bot starting up...")
     app.run_polling()
 
 

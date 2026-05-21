@@ -18,11 +18,16 @@ def build_rag_prompt(query: str, chunks: list[str], model_type: str) -> str:
         # llama3 via Ollama chat API — the system prompt is set in local_llm.py
         # so here we just format the user message content cleanly
         return (
+            f"You are a document Q&A assistant. Today is {today}.\n\n"
             f"Here are excerpts from a document:\n\n"
             f"{context_text}\n\n"
-            f"Based ONLY on the above excerpts, answer this question:\n"
-            f"{query}\n\n"
-            f"If the answer is not in the excerpts, say so clearly. Do not guess."
+            f"QUESTION: {query}\n\n"
+            f"INSTRUCTIONS:\n"
+            f"1. Base your answer ENTIRELY on the chunks — no outside knowledge.\n"
+            f"2. Reference chunk numbers where helpful e.g. [1], [2].\n"
+            f"3. If the answer is not in any chunk, say: 'Not found in the PDF.'\n"
+            f"4. Provide a clear, well-structured response with proper formatting and bullet points where appropriate.\n"
+            f"5. Do not guess or make up information."
         )
 
     else:
@@ -55,8 +60,10 @@ def build_general_prompt(query: str, context_blocks: list[str], model_type: str)
     if model_type == "local":
         ctx_block = (context + "\n\n") if context else ""
         return (
+            f"You are a helpful AI assistant. Today is {today}.\n\n"
             f"{ctx_block}"
-            f"{query}"
+            f"QUESTION: {query}\n\n"
+            f"Provide a clear, well-structured response with proper formatting:"
         )
 
     else:
@@ -85,8 +92,10 @@ def build_web_prompt(query: str, news: list[str], web: list[str], model_type: st
 
     if model_type == "local":
         return (
+            f"You are a helpful AI assistant. Today is {today}.\n\n"
             f"{context}\n\n"
-            f"{query}"
+            f"QUESTION: {query}\n\n"
+            f"Provide a clear, well-formatted response with proper sections and bullet points where appropriate:"
         )
 
     else:

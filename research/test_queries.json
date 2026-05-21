@@ -1,0 +1,2567 @@
+[
+  {
+    "id": 117,
+    "query": "create a weekly schedule with tasks, meetings, and reminders",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "schedule_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 96,
+    "query": "google cloud computing",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 194,
+    "query": "show me my calendar for next week and highlight meetings with john",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_complex",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 205,
+    "query": "plan a road trip route between three cities with stops",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "route_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 88,
+    "query": "create a task for Task 6",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 271,
+    "query": "identify statistical findings in the research document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_analysis",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 242,
+    "query": "create an outline from the document structure",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_outline",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 200,
+    "query": "compare three weather forecasts and suggest best day for hiking",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "weather_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 34,
+    "query": "mark task_37 as done",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 141,
+    "query": "analyze email sentiment and suggest reply strategies",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "email_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 51,
+    "query": "what time is it",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 14,
+    "query": "current time",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 39,
+    "query": "define database",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 22,
+    "query": "weather today",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 10,
+    "query": "new task: Task 14",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 259,
+    "query": "translate key concepts from the foreign language document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_translation",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 219,
+    "query": "extract requirements from the technical specification",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_requirements",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 99,
+    "query": "google cloud computing",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 232,
+    "query": "find all action items from the meeting notes pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_action_items",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 120,
+    "query": "create a weekly schedule with tasks, meetings, and reminders",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "schedule_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 166,
+    "query": "find restaurants in downtown and filter by cuisine and ratings",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "restaurant_search",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 110,
+    "query": "show my tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 148,
+    "query": "remind me to call mom next tuesday at 3pm and send her my calendar",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_reminder_complex",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 74,
+    "query": "delete task_42",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 163,
+    "query": "create a content calendar for social media for the next month",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "content_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 7,
+    "query": "new task: Task 32",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 208,
+    "query": "compare job postings from multiple companies for similar roles",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "job_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 146,
+    "query": "remind me to call mom next tuesday at 3pm and send her my calendar",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_reminder_complex",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 129,
+    "query": "create a learning plan for python with resources and timeline",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "learning_plan",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 53,
+    "query": "what time is it",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 106,
+    "query": "show my tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 182,
+    "query": "plan a month-long trip with budget and itinerary",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "trip_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 24,
+    "query": "weather today",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 138,
+    "query": "find flights from new york to london next month under 500 dollars",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "travel_search",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 192,
+    "query": "show me my calendar for next week and highlight meetings with john",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_complex",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 151,
+    "query": "analyze my spending patterns and suggest budget adjustments",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "finance_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 277,
+    "query": "identify trends or patterns across multiple documents",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_trend_analysis",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 268,
+    "query": "compare claims in document1 and document2",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_compare",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 131,
+    "query": "generate a workout plan based on my fitness level and goals",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "fitness_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 149,
+    "query": "remind me to call mom next tuesday at 3pm and send her my calendar",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_reminder_complex",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 19,
+    "query": "what is database",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 3,
+    "query": "what's the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 137,
+    "query": "find flights from new york to london next month under 500 dollars",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "travel_search",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 157,
+    "query": "find and compare insurance plans for comprehensive coverage",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "insurance_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 284,
+    "query": "summarize the main points from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_summary",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 160,
+    "query": "find and compare insurance plans for comprehensive coverage",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "insurance_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 126,
+    "query": "create a learning plan for python with resources and timeline",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "learning_plan",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 70,
+    "query": "tell me the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 237,
+    "query": "what are the conclusions in the uploaded pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_qa",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 95,
+    "query": "remove task task_20",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 175,
+    "query": "search for machine learning papers from 2024 and summarize top 5",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "research_summary",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 228,
+    "query": "find sections discussing methodology in my document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_search",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 63,
+    "query": "find information about web development",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 195,
+    "query": "show me my calendar for next week and highlight meetings with john",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_complex",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 233,
+    "query": "find all action items from the meeting notes pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_action_items",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 168,
+    "query": "find restaurants in downtown and filter by cuisine and ratings",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "restaurant_search",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 153,
+    "query": "analyze my spending patterns and suggest budget adjustments",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "finance_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 85,
+    "query": "news on science",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 77,
+    "query": "latest news about technology",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 82,
+    "query": "news on science",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 80,
+    "query": "latest news about AI",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 145,
+    "query": "analyze email sentiment and suggest reply strategies",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "email_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 266,
+    "query": "compare claims in document1 and document2",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_compare",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 173,
+    "query": "search for machine learning papers from 2024 and summarize top 5",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "research_summary",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 267,
+    "query": "compare claims in document1 and document2",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_compare",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 206,
+    "query": "compare job postings from multiple companies for similar roles",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "job_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 84,
+    "query": "news on AI",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 214,
+    "query": "summarize financial reports and highlight key metrics",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_finance_summary",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 162,
+    "query": "create a content calendar for social media for the next month",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "content_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 41,
+    "query": "my to-do list",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 240,
+    "query": "what are the conclusions in the uploaded pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_qa",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 155,
+    "query": "analyze my spending patterns and suggest budget adjustments",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "finance_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 222,
+    "query": "find references and citations in the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_references",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 15,
+    "query": "current time",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 121,
+    "query": "find investment opportunities aligned with my risk profile",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "investment_planning",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 164,
+    "query": "create a content calendar for social media for the next month",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "content_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 29,
+    "query": "complete task task_6",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 52,
+    "query": "what time is it",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 264,
+    "query": "fact-check claims in my document against external sources",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_verification",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 188,
+    "query": "analyze competitor pricing and market trends in my industry",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "market_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 118,
+    "query": "create a weekly schedule with tasks, meetings, and reminders",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "schedule_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 33,
+    "query": "mark task_6 as done",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 136,
+    "query": "find flights from new york to london next month under 500 dollars",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "travel_search",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 229,
+    "query": "find sections discussing methodology in my document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_search",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 103,
+    "query": "add task Task 78",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 87,
+    "query": "create a task for Task 39",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 36,
+    "query": "define API",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 124,
+    "query": "find investment opportunities aligned with my risk profile",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "investment_planning",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 104,
+    "query": "add task Task 26",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 272,
+    "query": "identify statistical findings in the research document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_analysis",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 16,
+    "query": "what is database",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 170,
+    "query": "find restaurants in downtown and filter by cuisine and ratings",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "restaurant_search",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 161,
+    "query": "create a content calendar for social media for the next month",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "content_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 5,
+    "query": "what's the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 86,
+    "query": "create a task for Task 15",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 282,
+    "query": "summarize the main points from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_summary",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 130,
+    "query": "create a learning plan for python with resources and timeline",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "learning_plan",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 204,
+    "query": "plan a road trip route between three cities with stops",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "route_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 159,
+    "query": "find and compare insurance plans for comprehensive coverage",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "insurance_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 249,
+    "query": "extract table data from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_table_extraction",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 250,
+    "query": "extract table data from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_table_extraction",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 94,
+    "query": "remove task task_26",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 128,
+    "query": "create a learning plan for python with resources and timeline",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "learning_plan",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 169,
+    "query": "find restaurants in downtown and filter by cuisine and ratings",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "restaurant_search",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 44,
+    "query": "my to-do list",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 2,
+    "query": "what's the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 190,
+    "query": "analyze competitor pricing and market trends in my industry",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "market_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 125,
+    "query": "find investment opportunities aligned with my risk profile",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "investment_planning",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 105,
+    "query": "add task Task 75",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 64,
+    "query": "find information about python",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 66,
+    "query": "tell me the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 263,
+    "query": "fact-check claims in my document against external sources",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_verification",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 140,
+    "query": "find flights from new york to london next month under 500 dollars",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "travel_search",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 20,
+    "query": "what is neural network",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 123,
+    "query": "find investment opportunities aligned with my risk profile",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "investment_planning",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 276,
+    "query": "identify trends or patterns across multiple documents",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_trend_analysis",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 199,
+    "query": "compare three weather forecasts and suggest best day for hiking",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "weather_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 71,
+    "query": "delete task_18",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 216,
+    "query": "extract requirements from the technical specification",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_requirements",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 239,
+    "query": "what are the conclusions in the uploaded pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_qa",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 37,
+    "query": "define database",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 212,
+    "query": "summarize financial reports and highlight key metrics",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_finance_summary",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 193,
+    "query": "show me my calendar for next week and highlight meetings with john",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_complex",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 102,
+    "query": "add task Task 97",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 152,
+    "query": "analyze my spending patterns and suggest budget adjustments",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "finance_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 198,
+    "query": "compare three weather forecasts and suggest best day for hiking",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "weather_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 60,
+    "query": "search for cloud computing",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 93,
+    "query": "remove task task_49",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 28,
+    "query": "complete task task_1",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 241,
+    "query": "create an outline from the document structure",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_outline",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 252,
+    "query": "extract all entity names from the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_extract",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 61,
+    "query": "find information about cloud computing",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 30,
+    "query": "complete task task_38",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 109,
+    "query": "show my tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 184,
+    "query": "plan a month-long trip with budget and itinerary",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "trip_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 57,
+    "query": "search for web development",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 260,
+    "query": "translate key concepts from the foreign language document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_translation",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 72,
+    "query": "delete task_5",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 11,
+    "query": "current time",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 225,
+    "query": "find references and citations in the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_references",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 59,
+    "query": "search for cloud computing",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 197,
+    "query": "compare three weather forecasts and suggest best day for hiking",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "weather_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 4,
+    "query": "what's the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 189,
+    "query": "analyze competitor pricing and market trends in my industry",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "market_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 27,
+    "query": "complete task task_50",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 211,
+    "query": "summarize financial reports and highlight key metrics",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_finance_summary",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 112,
+    "query": "find local events this weekend matching my interests",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "event_discovery",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 108,
+    "query": "show my tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 142,
+    "query": "analyze email sentiment and suggest reply strategies",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "email_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 98,
+    "query": "google machine learning",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 278,
+    "query": "identify trends or patterns across multiple documents",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_trend_analysis",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 281,
+    "query": "summarize the main points from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_summary",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 180,
+    "query": "help me choose between two apartments based on price and location",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "decision_support",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 156,
+    "query": "find and compare insurance plans for comprehensive coverage",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "insurance_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 261,
+    "query": "fact-check claims in my document against external sources",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_verification",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 236,
+    "query": "what are the conclusions in the uploaded pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_qa",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 43,
+    "query": "my to-do list",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 177,
+    "query": "help me choose between two apartments based on price and location",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "decision_support",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 25,
+    "query": "weather today",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 35,
+    "query": "mark task_7 as done",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 32,
+    "query": "mark task_40 as done",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 90,
+    "query": "create a task for Task 4",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 92,
+    "query": "remove task task_29",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 265,
+    "query": "fact-check claims in my document against external sources",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_verification",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 273,
+    "query": "identify statistical findings in the research document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_analysis",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 223,
+    "query": "find references and citations in the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_references",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 144,
+    "query": "analyze email sentiment and suggest reply strategies",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "email_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 158,
+    "query": "find and compare insurance plans for comprehensive coverage",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "insurance_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 49,
+    "query": "list tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 218,
+    "query": "extract requirements from the technical specification",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_requirements",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 215,
+    "query": "summarize financial reports and highlight key metrics",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_finance_summary",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 196,
+    "query": "compare three weather forecasts and suggest best day for hiking",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "weather_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 113,
+    "query": "find local events this weekend matching my interests",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "event_discovery",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 115,
+    "query": "find local events this weekend matching my interests",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "event_discovery",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 246,
+    "query": "extract table data from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_table_extraction",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 8,
+    "query": "new task: Task 35",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 257,
+    "query": "translate key concepts from the foreign language document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_translation",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 50,
+    "query": "list tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 6,
+    "query": "new task: Task 91",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 83,
+    "query": "news on technology",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 248,
+    "query": "extract table data from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_table_extraction",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 9,
+    "query": "new task: Task 96",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 101,
+    "query": "add task Task 99",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 91,
+    "query": "remove task task_21",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 253,
+    "query": "extract all entity names from the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_extract",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 76,
+    "query": "latest news about AI",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 186,
+    "query": "analyze competitor pricing and market trends in my industry",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "market_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 1,
+    "query": "what's the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 58,
+    "query": "search for cloud computing",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 167,
+    "query": "find restaurants in downtown and filter by cuisine and ratings",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "restaurant_search",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 119,
+    "query": "create a weekly schedule with tasks, meetings, and reminders",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "schedule_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 45,
+    "query": "my to-do list",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 78,
+    "query": "latest news about AI",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 42,
+    "query": "my to-do list",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 89,
+    "query": "create a task for Task 72",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_add",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 213,
+    "query": "summarize financial reports and highlight key metrics",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_finance_summary",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 134,
+    "query": "generate a workout plan based on my fitness level and goals",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "fitness_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 56,
+    "query": "search for web development",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 217,
+    "query": "extract requirements from the technical specification",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_requirements",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 178,
+    "query": "help me choose between two apartments based on price and location",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "decision_support",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 147,
+    "query": "remind me to call mom next tuesday at 3pm and send her my calendar",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_reminder_complex",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 179,
+    "query": "help me choose between two apartments based on price and location",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "decision_support",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 269,
+    "query": "compare claims in document1 and document2",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_compare",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 97,
+    "query": "google python",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 220,
+    "query": "extract requirements from the technical specification",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_requirements",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 100,
+    "query": "google python",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 132,
+    "query": "generate a workout plan based on my fitness level and goals",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "fitness_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 275,
+    "query": "identify statistical findings in the research document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_analysis",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 17,
+    "query": "what is API",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 247,
+    "query": "extract table data from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_table_extraction",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 21,
+    "query": "weather today",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 176,
+    "query": "help me choose between two apartments based on price and location",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "decision_support",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 235,
+    "query": "find all action items from the meeting notes pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_action_items",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 69,
+    "query": "tell me the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 62,
+    "query": "find information about python",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 135,
+    "query": "generate a workout plan based on my fitness level and goals",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "fitness_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 245,
+    "query": "create an outline from the document structure",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_outline",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 207,
+    "query": "compare job postings from multiple companies for similar roles",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "job_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 114,
+    "query": "find local events this weekend matching my interests",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "event_discovery",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 280,
+    "query": "identify trends or patterns across multiple documents",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_trend_analysis",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 18,
+    "query": "what is neural network",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 65,
+    "query": "find information about machine learning",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "web_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 150,
+    "query": "remind me to call mom next tuesday at 3pm and send her my calendar",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_reminder_complex",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 73,
+    "query": "delete task_37",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 139,
+    "query": "find flights from new york to london next month under 500 dollars",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "travel_search",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 23,
+    "query": "weather today",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 185,
+    "query": "plan a month-long trip with budget and itinerary",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "trip_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 81,
+    "query": "news on AI",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 274,
+    "query": "identify statistical findings in the research document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_analysis",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 283,
+    "query": "summarize the main points from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_summary",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 227,
+    "query": "find sections discussing methodology in my document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_search",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 244,
+    "query": "create an outline from the document structure",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_outline",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 243,
+    "query": "create an outline from the document structure",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_outline",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 54,
+    "query": "what time is it",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 251,
+    "query": "extract all entity names from the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_extract",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 230,
+    "query": "find sections discussing methodology in my document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_search",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 133,
+    "query": "generate a workout plan based on my fitness level and goals",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "fitness_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 48,
+    "query": "list tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 122,
+    "query": "find investment opportunities aligned with my risk profile",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "investment_planning",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 256,
+    "query": "translate key concepts from the foreign language document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_translation",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 226,
+    "query": "find sections discussing methodology in my document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_search",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 279,
+    "query": "identify trends or patterns across multiple documents",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_trend_analysis",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 38,
+    "query": "define database",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 262,
+    "query": "fact-check claims in my document against external sources",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_verification",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 68,
+    "query": "tell me the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 201,
+    "query": "plan a road trip route between three cities with stops",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "route_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 254,
+    "query": "extract all entity names from the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_extract",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 203,
+    "query": "plan a road trip route between three cities with stops",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "route_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 154,
+    "query": "analyze my spending patterns and suggest budget adjustments",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "finance_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 231,
+    "query": "find all action items from the meeting notes pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_action_items",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 187,
+    "query": "analyze competitor pricing and market trends in my industry",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "market_analysis",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 181,
+    "query": "plan a month-long trip with budget and itinerary",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "trip_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 26,
+    "query": "complete task task_4",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 127,
+    "query": "create a learning plan for python with resources and timeline",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "learning_plan",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 209,
+    "query": "compare job postings from multiple companies for similar roles",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "job_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 202,
+    "query": "plan a road trip route between three cities with stops",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "route_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 191,
+    "query": "show me my calendar for next week and highlight meetings with john",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "calendar_complex",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 143,
+    "query": "analyze email sentiment and suggest reply strategies",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "email_analysis",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 111,
+    "query": "find local events this weekend matching my interests",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "event_discovery",
+    "expected_confidence": 0.5,
+    "split": "test"
+  },
+  {
+    "id": 165,
+    "query": "create a content calendar for social media for the next month",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "content_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 40,
+    "query": "define API",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "wiki_search",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 55,
+    "query": "what time is it",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 75,
+    "query": "delete task_21",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_delete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 107,
+    "query": "show my tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 270,
+    "query": "compare claims in document1 and document2",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_compare",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 210,
+    "query": "compare job postings from multiple companies for similar roles",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "job_comparison",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 238,
+    "query": "what are the conclusions in the uploaded pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_qa",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 174,
+    "query": "search for machine learning papers from 2024 and summarize top 5",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "research_summary",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 221,
+    "query": "find references and citations in the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_references",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 255,
+    "query": "extract all entity names from the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_extract",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 116,
+    "query": "create a weekly schedule with tasks, meetings, and reminders",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "schedule_planning",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 171,
+    "query": "search for machine learning papers from 2024 and summarize top 5",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "research_summary",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 285,
+    "query": "summarize the main points from my pdf document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_summary",
+    "expected_confidence": 0.75,
+    "split": "test"
+  },
+  {
+    "id": 258,
+    "query": "translate key concepts from the foreign language document",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_translation",
+    "expected_confidence": 0.6,
+    "split": "test"
+  },
+  {
+    "id": 224,
+    "query": "find references and citations in the research paper",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_references",
+    "expected_confidence": 0.65,
+    "split": "test"
+  },
+  {
+    "id": 13,
+    "query": "current time",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 46,
+    "query": "list tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 67,
+    "query": "tell me the weather",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "weather",
+    "expected_confidence": 0.85,
+    "split": "train"
+  },
+  {
+    "id": 172,
+    "query": "search for machine learning papers from 2024 and summarize top 5",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "research_summary",
+    "expected_confidence": 0.55,
+    "split": "test"
+  },
+  {
+    "id": 47,
+    "query": "list tasks",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_view",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 234,
+    "query": "find all action items from the meeting notes pdf",
+    "category": "rag",
+    "expected_stage": 3,
+    "expected_stage_name": "pdf_action_items",
+    "expected_confidence": 0.7,
+    "split": "test"
+  },
+  {
+    "id": 79,
+    "query": "latest news about AI",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "news",
+    "expected_confidence": 0.75,
+    "split": "train"
+  },
+  {
+    "id": 31,
+    "query": "mark task_27 as done",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "task_complete",
+    "expected_confidence": 0.9,
+    "split": "train"
+  },
+  {
+    "id": 12,
+    "query": "current time",
+    "category": "simple",
+    "expected_stage": 1,
+    "expected_stage_name": "time",
+    "expected_confidence": 0.8,
+    "split": "train"
+  },
+  {
+    "id": 183,
+    "query": "plan a month-long trip with budget and itinerary",
+    "category": "complex",
+    "expected_stage": 2,
+    "expected_stage_name": "trip_planning",
+    "expected_confidence": 0.5,
+    "split": "test"
+  }
+]
