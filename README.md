@@ -64,11 +64,15 @@ The pipeline executes through a highly structured 7-phase architecture governed 
 
 ## Graph Data Integrations
 
+<img width="506" height="457" alt="image" src="https://github.com/user-attachments/assets/c9ebe2d8-cfe7-4d0a-a62b-02dda0d3bd56" />
+
 **Figure 3: Categorical Distribution of Intent Resolution and LLM Dependency**
 | Routing Configuration | Percentage of Queries | Interpretation |
 | :--- | :--- | :--- |
 | Direct Design (No LLM) | 12.8% | Direct rule-based handling without LLM overhead |
 | LLM Dependent | 87.2% | System routes through transformer models |
+
+<img width="561" height="370" alt="image" src="https://github.com/user-attachments/assets/02e8264d-b167-4767-abc3-49ce6f67a854" />
 
 **Figure 4: Aggregated System Performance and Task Success Metrics**
 | Experiment Type | Key Metric | Value | Interpretation |
@@ -79,12 +83,16 @@ The pipeline executes through a highly structured 7-phase architecture governed 
 | Efficiency | Complex Query Best| Local | 7x faster local execution for logical reasoning |
 | Efficiency | RAG Best | Local | 5x faster; privacy benefits outweigh any cloud latency gains |
 
+<img width="511" height="360" alt="image" src="https://github.com/user-attachments/assets/23046e26-9ed8-477a-865a-11040ea882d9" />
+
 **Figure 6: Latency vs. Accuracy Pareto Frontier**
 | Inference Tier | Hardware Setup | Latency (Mean) | Latency (P99) | Intent Accuracy |
 | :--- | :--- | :--- | :--- | :--- |
 | Heuristic Rules | Ryzen 7 CPU | 12.5 ms | 18.2 ms | 99.1% |
 | Local LLM (4-bit) | RTX 3050 Ti | 842.0 ms | 1,120.5 ms | 84.8% |
 | Cloud LLM (Flash)| Remote API | 1,425.0 ms | 3,850.0 ms | 91.3% |
+
+<img width="506" height="304" alt="image" src="https://github.com/user-attachments/assets/574cd644-ebb8-457b-a938-9dc053f21623" />
 
 **Figure 1: Stylometric Convergence and Privacy Defense Analysis**
 * **Identity Unlinkability Defense:** By applying the Contextual Stylometric Transformer, the Euclidean distance between differing AI model outputs was reduced by 64%. This effectively prevents adversaries from linking cloud-based queries back to the local user profile, validating a 62% reduction in stylometric fingerprinting.
