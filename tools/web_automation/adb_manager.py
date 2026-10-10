@@ -12,9 +12,6 @@ Setup (one-time):
 """
 
 import subprocess
-import re
-from typing import Optional
-
 
 # ── ADB binary path (update if adb is not in PATH) ───────────────────────
 ADB = "adb"
@@ -73,7 +70,7 @@ def get_devices() -> list[str]:
     ]
 
 
-def get_primary_device() -> Optional[str]:
+def get_primary_device() -> str | None:
     devices = get_devices()
     return devices[0] if devices else None
 
@@ -87,7 +84,7 @@ def connect_wifi(ip: str, port: int = 5555) -> ADBResult:
 
 
 # ── Shell helper ──────────────────────────────────────────────────────────
-def shell(command: str, device: Optional[str] = None) -> ADBResult:
+def shell(command: str, device: str | None = None) -> ADBResult:
     device = device or get_primary_device()
     if not device:
         return ADBResult(
@@ -107,7 +104,7 @@ def launch_intent(
     package: str = "",
     data_uri: str = "",
     extras: dict | None = None,
-    device: Optional[str] = None,
+    device: str | None = None,
 ) -> ADBResult:
     cmd = "am start"
     if action:

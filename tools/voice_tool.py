@@ -5,20 +5,25 @@ And system ffmpeg: https://ffmpeg.org/download.html (add to PATH)
 """
 
 import os
-import tempfile
 import subprocess
+import tempfile
 
+from core.logger import get_logger
 
+logger = get_logger(__name__)
+
+# Common Windows install locations; set FFMPEG_DIR in .env to override.
 FFMPEG_DIRS = [
+    os.getenv("FFMPEG_DIR", ""),
     r"C:\ffmpeg\ffmpeg-8.0.1-essentials_build\bin",
     r"C:\ffmpeg-8.0.1-essentials_build\bin",
     r"C:\ffmpeg\bin",
     r"C:\Program Files\ffmpeg\bin",
 ]
 for ffmpeg_dir in FFMPEG_DIRS:
-    if os.path.exists(ffmpeg_dir):
+    if ffmpeg_dir and os.path.exists(ffmpeg_dir):
         os.environ["PATH"] = ffmpeg_dir + os.pathsep + os.environ.get("PATH", "")
-        print(f"ffmpeg path set: {ffmpeg_dir}")
+        logger.debug(f"ffmpeg path set: {ffmpeg_dir}")
         break
 
 WHISPER_AVAILABLE = False
@@ -36,9 +41,8 @@ WHISPER_MODEL_SIZE = "base"
 def _load_model():
     global whisper_model
     if whisper_model is None:
-        print("Loading Whisper model (first time only)...")
+        logger.info("Loading Whisper model (first time only)")
         whisper_model = whisper.load_model(WHISPER_MODEL_SIZE)
-        print("Whisper model loaded.")
     return whisper_model
 
 
@@ -53,7 +57,7 @@ def transcribe_audio(file_path: str) -> str:
     if not os.path.exists(file_path):
         return f"Error: Audio file not found: {file_path}"
 
-    
+
     try:
         result = subprocess.run(
             ["ffmpeg", "-version"],
@@ -95,7 +99,7 @@ def transcribe_bytes(audio_bytes: bytes, suffix: str = ".ogg") -> str:
         result = transcribe_audio(tmp_path)
         try:
             os.unlink(tmp_path)
-        except Exception:
+        except OSError:
             pass
         return result
     except Exception as e:

@@ -3,7 +3,6 @@ pdf_compare_tool.py - Compare two PDFs and generate summary reports
 """
 
 import os
-from fpdf import FPDF
 from datetime import datetime
 
 try:
@@ -12,10 +11,9 @@ try:
 except ImportError:
     PYPDF_AVAILABLE = False
 
-REPORTS_DIR = "reports"
-os.makedirs(REPORTS_DIR, exist_ok=True)
+from config.settings import settings
 
-
+REPORTS_DIR = str(settings.DATA_DIR / "reports")
 
 
 def _extract_text(path: str) -> str:
@@ -29,8 +27,6 @@ def _extract_text(path: str) -> str:
         ).strip()
     except Exception as e:
         return f"Error reading {path}: {e}"
-
-
 
 
 def compare_pdfs(
@@ -50,7 +46,7 @@ def compare_pdfs(
     if text1.startswith("Error") or text2.startswith("Error"):
         return text1 if text1.startswith("Error") else text2
 
-    
+
     text1 = text1[:3000]
     text2 = text2[:3000]
 
@@ -72,8 +68,6 @@ def compare_pdfs(
     return f"Comparison: {name1} vs {name2}\n\n{result}"
 
 
-
-
 def generate_pdf_report(
     title: str,
     content: str,
@@ -88,7 +82,8 @@ def generate_pdf_report(
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = f"report_{ts}.pdf"
 
-    output_path = os.path.join(REPORTS_DIR, output_filename)
+    os.makedirs(REPORTS_DIR, exist_ok=True)
+    output_path = os.path.join(REPORTS_DIR, os.path.basename(output_filename))
 
     try:
         pdf = FPDF()
@@ -112,7 +107,7 @@ def generate_pdf_report(
 
         # Content
         pdf.set_font("Helvetica", "", 11)
-        
+
         safe_content = content.encode("latin-1", errors="replace").decode("latin-1")
 
         for line in safe_content.splitlines():
@@ -121,7 +116,7 @@ def generate_pdf_report(
                 pdf.ln(3)
                 continue
 
-            
+
             if line.isupper() or (line.endswith(":") and len(line) < 60):
                 pdf.set_font("Helvetica", "B", 11)
                 pdf.multi_cell(0, 6, line)
@@ -134,8 +129,6 @@ def generate_pdf_report(
 
     except Exception as e:
         return f"Error generating PDF report: {e}"
-
-
 
 
 def summarize_pdf_to_report(

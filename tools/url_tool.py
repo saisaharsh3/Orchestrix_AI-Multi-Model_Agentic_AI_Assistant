@@ -1,19 +1,22 @@
 """
-url_tool.py - URL summarization and price tracking
-Uses rotating headers and session to avoid Amazon bot detection.
-Install: pip install requests beautifulsoup4
+url_tool.py - URL summarization and price tracking.
+
+Every fetch goes through tools.net_safety, so links to localhost or private
+network addresses are refused. Tracked prices live in SQLite, per user.
 """
 
-import os
-import json
+import random
 import re
 import time
-import requests
 from datetime import datetime
+
+import requests
 from bs4 import BeautifulSoup
 
-PRICE_TRACK_FILE = "data/tracked_prices.json"
-os.makedirs("data", exist_ok=True)
+from core.storage import get_store
+from tools.net_safety import UnsafeURLError, safe_get
+
+NAMESPACE = "tracked_prices"
 
 
 HEADERS_LIST = [
@@ -35,19 +38,15 @@ HEADERS_LIST = [
     },
 ]
 
-import random
-
 def _get_headers():
     return random.choice(HEADERS_LIST)
-
-
 
 
 def fetch_url_text(url: str, max_chars: int = 6000) -> tuple[str, str]:
     try:
         session = requests.Session()
         session.headers.update(_get_headers())
-        r = session.get(url, timeout=15, allow_redirects=True)
+        r = safe_get(session, url, timeout=15)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
@@ -57,10 +56,12 @@ def fetch_url_text(url: str, max_chars: int = 6000) -> tuple[str, str]:
         title = soup.title.string.strip() if soup.title else url
         main  = soup.find("article") or soup.find("main") or soup.find("body")
         text  = main.get_text(separator="\n", strip=True) if main else ""
-        lines = [l.strip() for l in text.splitlines() if l.strip()]
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
         text  = "\n".join(lines)
         return title, text[:max_chars]
 
+    except UnsafeURLError as e:
+        return "", f"Error: {e}"
     except requests.exceptions.ConnectionError:
         return "", "Error: Could not reach the URL."
     except requests.exceptions.Timeout:
@@ -88,8 +89,6 @@ def summarize_url(url: str, generate_llm_fn=None, model_type: str = "api") -> st
     )
     summary = generate_llm_fn(prompt, model_type)
     return f"Summary of: {title}\nURL: {url}\n\n{summary}"
-
-
 
 
 AMAZON_SELECTORS = [
@@ -134,65 +133,69 @@ def _extract_price_from_soup(soup: BeautifulSoup, url: str) -> str | None:
             if clean and len(clean) >= 2:
                 return clean
 
-    
+
     for meta_prop in ["product:price:amount", "og:price:amount"]:
         meta = soup.find("meta", {"property": meta_prop})
         if meta and meta.get("content"):
             return meta["content"]
 
-    
+
     for script in soup.find_all("script", type="application/ld+json"):
         try:
-            import json as _json
-            data = _json.loads(script.string or "")
+            import json
+            data = json.loads(script.string or "")
             if isinstance(data, dict):
                 offers = data.get("offers", {})
                 if isinstance(offers, dict):
                     price = offers.get("price")
                     if price:
                         return str(price)
-        except Exception:
-            pass
+        except (ValueError, TypeError):
+            continue
 
     return None
 
 
 def _fetch_page(url: str) -> BeautifulSoup | None:
+    """Raises UnsafeURLError for blocked addresses; returns None on other failures."""
     try:
         session = requests.Session()
-        
+
         session.headers.update(_get_headers())
         if "amazon" in url:
             session.headers["Referer"] = "https://www.google.com"
         time.sleep(random.uniform(0.5, 1.5))  # small delay
-        r = session.get(url, timeout=15, allow_redirects=True)
+        r = safe_get(session, url, timeout=15)
         r.raise_for_status()
         return BeautifulSoup(r.text, "html.parser")
-    except Exception:
+    except UnsafeURLError:
+        raise
+    except requests.RequestException:
         return None
 
 
+def _key(user_id: str, url: str) -> str:
+    return f"{user_id}|{url[:100]}"
 
 
-def _load_tracked() -> dict:
+def _load_tracked(user_id: str) -> dict:
+    prefix = f"{user_id}|"
+    return {
+        key[len(prefix):]: value
+        for key, value in get_store().items(NAMESPACE)
+        if key.startswith(prefix)
+    }
+
+
+def _save_entry(user_id: str, url: str, entry: dict) -> None:
+    get_store().put(NAMESPACE, _key(user_id, url), entry)
+
+
+def track_price(url: str, item_name: str = "", user_id: str = "local") -> str:
     try:
-        if os.path.exists(PRICE_TRACK_FILE):
-            with open(PRICE_TRACK_FILE) as f:
-                return json.load(f)
-    except Exception:
-        pass
-    return {}
-
-
-def _save_tracked(data: dict):
-    with open(PRICE_TRACK_FILE, "w") as f:
-        json.dump(data, f, indent=2)
-
-
-
-
-def track_price(url: str, item_name: str = "") -> str:
-    soup = _fetch_page(url)
+        soup = _fetch_page(url)
+    except UnsafeURLError as e:
+        return f"Error: {e}"
     if soup is None:
         return (
             "Error: Could not fetch the product page.\n"
@@ -205,16 +208,9 @@ def track_price(url: str, item_name: str = "") -> str:
     name  = item_name or title[:60]
 
     if not price_str:
-        
-        tracked   = _load_tracked()
-        entry_key = url[:100]
-        history   = tracked.get(entry_key, {}).get("history", [])
-        tracked[entry_key] = {
-            "name":    name,
-            "url":     url,
-            "history": history,
-        }
-        _save_tracked(tracked)
+
+        history = _load_tracked(user_id).get(url[:100], {}).get("history", [])
+        _save_entry(user_id, url, {"name": name, "url": url, "history": history})
         return (
             f"Tracking started for: {name}\n"
             f"Current price: Could not extract (Amazon may require login)\n"
@@ -222,21 +218,10 @@ def track_price(url: str, item_name: str = "") -> str:
             f"Tip: Use 'show tracked prices' to see all tracked items."
         )
 
-    
-    tracked   = _load_tracked()
-    entry_key = url[:100]
-    history   = tracked.get(entry_key, {}).get("history", [])
-    history.append({
-        "price": price_str,
-        "date":  datetime.now().isoformat(),
-    })
 
-    tracked[entry_key] = {
-        "name":    name,
-        "url":     url,
-        "history": history[-30:],
-    }
-    _save_tracked(tracked)
+    history = _load_tracked(user_id).get(url[:100], {}).get("history", [])
+    history.append({"price": price_str, "date": datetime.now().isoformat()})
+    _save_entry(user_id, url, {"name": name, "url": url, "history": history[-30:]})
 
     # Check for price drop
     if len(history) >= 2:
@@ -267,8 +252,8 @@ def track_price(url: str, item_name: str = "") -> str:
     )
 
 
-def show_tracked_prices() -> str:
-    tracked = _load_tracked()
+def show_tracked_prices(user_id: str = "local") -> str:
+    tracked = _load_tracked(user_id)
     if not tracked:
         return "No products being tracked. Say 'track price <url>' to start."
 

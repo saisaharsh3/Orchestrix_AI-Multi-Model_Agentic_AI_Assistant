@@ -5,8 +5,9 @@ Add to .env: OPENWEATHER_API_KEY=your_key
 """
 
 import os
-import requests
 from datetime import datetime
+
+import requests
 
 BASE_URL = "https://api.openweathermap.org/data/2.5"
 

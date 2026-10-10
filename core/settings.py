@@ -1,1 +1,0 @@
-MODEL_MODE = "AUTO"  # LOCAL | API | AUTO

@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from pathlib import Path
+import os
+
+# Inputs (results_exp*.json) and outputs (graphs/) live next to this script.
+os.chdir(Path(__file__).resolve().parent)
 
 # Set publication-quality style
 sns.set_style("whitegrid")
@@ -111,65 +115,40 @@ plt.close()
 # ============================================================================
 # GRAPH 3: Experiment 3 - Latency vs Accuracy Tradeoff
 # ============================================================================
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+fig, ax1 = plt.subplots(figsize=(8, 5))
 
-# Left: Latency comparison
-query_types = ['Simple', 'Complex', 'RAG']
-local_latencies = [
-    exp3['latency_comparison']['simple']['local_avg_ms'],
-    exp3['latency_comparison']['complex']['local_avg_ms'],
-    exp3['latency_comparison']['rag']['local_avg_ms']
-]
-api_latencies = [
-    exp3['latency_comparison']['simple']['api_avg_ms'],
-    exp3['latency_comparison']['complex']['api_avg_ms'],
-    exp3['latency_comparison']['rag']['api_avg_ms']
-]
+# Measured median latency per category (see exp3_hybrid_efficiency.py).
+query_types = ['simple', 'complex', 'rag']
+by_cat = exp3['latency_by_category']
+
+
+def _median(category, model):
+    stats = by_cat[category][model]
+    return stats['median_ms'] if stats else 0
+
+
+local_latencies = [_median(c, 'local') for c in query_types]
+api_latencies = [_median(c, 'api') for c in query_types]
 
 x = np.arange(len(query_types))
 width = 0.35
-
-bars1 = ax1.bar(x - width/2, local_latencies, width, label='Local Model', 
+bars1 = ax1.bar(x - width/2, local_latencies, width, label='Local (Ollama)',
                 color='#3498db', edgecolor='black', linewidth=1.5, alpha=0.8)
-bars2 = ax1.bar(x + width/2, api_latencies, width, label='API Model', 
+bars2 = ax1.bar(x + width/2, api_latencies, width, label='API (Gemini)',
                 color='#e74c3c', edgecolor='black', linewidth=1.5, alpha=0.8)
-
-# Add value labels
 for bars in [bars1, bars2]:
     for bar in bars:
         height = bar.get_height()
-        if height > 0:
-            ax1.text(bar.get_x() + bar.get_width()/2, height + 50, 
-                    f'{int(height)}ms', ha='center', va='bottom', fontsize=9, fontweight='bold')
+        label = f'{int(height)} ms' if height > 0 else 'no data'
+        ax1.text(bar.get_x() + bar.get_width()/2, height, label,
+                 ha='center', va='bottom', fontsize=9, fontweight='bold')
 
-ax1.set_ylabel('Latency (milliseconds)', fontweight='bold')
-ax1.set_title('Latency Comparison by Query Type', fontweight='bold', pad=12)
+ax1.set_ylabel('Median latency (ms)', fontweight='bold')
+ax1.set_title('Measured latency by query type', fontweight='bold', pad=12)
 ax1.set_xticks(x)
-ax1.set_xticklabels(query_types)
+ax1.set_xticklabels([t.upper() if t == 'rag' else t.title() for t in query_types])
 ax1.legend(loc='upper left')
 ax1.grid(axis='y', alpha=0.3)
-
-# Right: Speedup factor
-speedups = [
-    1 / exp3['latency_comparison']['simple']['speedup'],  # API is faster, so invert
-    exp3['latency_comparison']['complex']['speedup'],
-    exp3['latency_comparison']['rag']['speedup']
-]
-speedup_labels = ['API ~9x faster', 'Local ~7x faster', 'Local ~5x faster']
-colors_speedup = ['#e74c3c', '#2ecc71', '#2ecc71']
-
-bars_speedup = ax2.barh(query_types, speedups, color=colors_speedup, 
-                        edgecolor='black', linewidth=1.5, alpha=0.8)
-
-# Add value labels
-for i, (bar, label) in enumerate(zip(bars_speedup, speedup_labels)):
-    ax2.text(bar.get_width() + 0.2, bar.get_y() + bar.get_height()/2, 
-            label, va='center', fontweight='bold', fontsize=9)
-
-ax2.axvline(x=1, color='black', linestyle='-', linewidth=1, alpha=0.5)
-ax2.set_xlabel('Speedup Factor (x)', fontweight='bold')
-ax2.set_title('Performance Advantage', fontweight='bold', pad=12)
-ax2.grid(axis='x', alpha=0.3)
 
 plt.tight_layout()
 plt.savefig('graphs/exp3_latency_accuracy.png', dpi=300, bbox_inches='tight')

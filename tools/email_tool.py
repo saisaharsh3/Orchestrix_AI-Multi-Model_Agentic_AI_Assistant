@@ -5,59 +5,20 @@ Supports: send, draft, read inbox, reply, forward
 Uses Gmail API with OAuth2 (credentials/credentials.json)
 """
 
-import os
 import base64
-import re
 from email.message import EmailMessage
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-
-
-SCOPES = [
-    "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.compose",
-    "https://www.googleapis.com/auth/gmail.modify",
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/tasks",
-    "https://www.googleapis.com/auth/drive.readonly",
-]
-
-CREDENTIALS_PATH = "credentials/credentials.json"
-TOKEN_PATH       = "credentials/token.json"
-
-
+from tools.google_auth import get_service
 
 
 def _get_gmail_service():
-    creds = None
-
-    if os.path.exists(TOKEN_PATH):
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
-            creds = flow.run_local_server(port=0)
-
-        os.makedirs("credentials", exist_ok=True)
-        with open(TOKEN_PATH, "w") as f:
-            f.write(creds.to_json())
-
-    return build("gmail", "v1", credentials=creds)
+    return get_service("gmail", "v1")
 
 
 def _encode_message(msg: EmailMessage) -> dict:
     return {"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}
-
-
 
 
 def send_email(to: str, subject: str, body: str) -> str:
@@ -79,8 +40,6 @@ def send_email(to: str, subject: str, body: str) -> str:
         return f" Error sending email: {e}"
 
 
-
-
 def save_draft(to: str, subject: str, body: str) -> str:
     try:
         service = _get_gmail_service()
@@ -99,8 +58,6 @@ def save_draft(to: str, subject: str, body: str) -> str:
         return f" Gmail error: {e}"
     except Exception as e:
         return f" Error saving draft: {e}"
-
-
 
 
 def read_inbox(max_results: int = 5, unread_only: bool = True) -> list[dict]:
@@ -160,8 +117,6 @@ def format_inbox(emails: list[dict]) -> str:
     return "\n".join(lines)
 
 
-
-
 def get_email_body(message_id: str) -> str:
     try:
         service = _get_gmail_service()
@@ -180,7 +135,7 @@ def get_email_body(message_id: str) -> str:
                     break
 
         if not body:
-            
+
             data = msg.get("payload", {}).get("body", {}).get("data", "")
             if data:
                 body = base64.urlsafe_b64decode(data).decode("utf-8", errors="ignore")
@@ -191,13 +146,11 @@ def get_email_body(message_id: str) -> str:
         return f" Could not read email: {e}"
 
 
-
-
 def reply_to_email(message_id: str, body: str) -> str:
     try:
         service = _get_gmail_service()
 
-        
+
         orig = service.users().messages().get(
             userId="me", id=message_id, format="metadata",
             metadataHeaders=["From", "Subject", "Message-ID", "To"],
@@ -229,8 +182,6 @@ def reply_to_email(message_id: str, body: str) -> str:
         return f" Gmail error: {e}"
     except Exception as e:
         return f" Reply failed: {e}"
-
-
 
 
 def forward_email(message_id: str, to: str, note: str = "") -> str:
@@ -277,6 +228,23 @@ def forward_email(message_id: str, to: str, note: str = "") -> str:
         return f" Forward failed: {e}"
 
 
+def find_latest_message(query: str) -> dict | None:
+    """Most recent message matching a Gmail search query, as {id, from, subject}."""
+    service = _get_gmail_service()
+    found = service.users().messages().list(userId="me", q=query, maxResults=1).execute()
+    messages = found.get("messages", [])
+    if not messages:
+        return None
+    msg = service.users().messages().get(
+        userId="me", id=messages[0]["id"], format="metadata",
+        metadataHeaders=["From", "Subject"],
+    ).execute()
+    headers = {h["name"]: h["value"] for h in msg["payload"]["headers"]}
+    return {
+        "id": messages[0]["id"],
+        "from": headers.get("From", "Unknown"),
+        "subject": headers.get("Subject", "(no subject)"),
+    }
 
 
 def search_emails(query: str, max_results: int = 5) -> str:

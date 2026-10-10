@@ -28,6 +28,9 @@ import re
 import string
 from typing import Dict, List, Tuple
 from dataclasses import dataclass
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -258,7 +261,7 @@ class StyleometricDefense:
 def load_test_queries() -> Tuple[List[str], List[str]]:
     """Load test queries from research data"""
     try:
-        with open('test_queries.json', 'r') as f:
+        with open(HERE / 'test_queries.json', 'r') as f:
             all_queries = json.load(f)
             
         # Simulate: first 20 queries are "API mode"
@@ -434,7 +437,7 @@ def main():
     print(f"\n✅ RECOMMENDATION: {results['key_findings']['recommendation']}")
     
     # Save results
-    with open('results_exp5.json', 'w') as f:
+    with open(HERE / 'results_exp5.json', 'w') as f:
         # Convert numpy types for JSON serialization
         json_results = {
             "baseline": {k: float(v) if isinstance(v, (np.floating, np.integer)) else v

@@ -8,57 +8,20 @@ Scopes needed in credentials/credentials.json:
   https://www.googleapis.com/auth/calendar
 """
 
-import os
 import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from config.settings import settings
+from tools.google_auth import get_service
 
-SCOPES = [
-    "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.compose",
-    "https://www.googleapis.com/auth/gmail.modify",
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/tasks",
-    "https://www.googleapis.com/auth/drive.readonly",
-]
-
-CREDENTIALS_PATH = "credentials/credentials.json"
-TOKEN_PATH       = "credentials/token.json"
-
-
-DEFAULT_TIMEZONE = "Asia/Kolkata"
-
-
+DEFAULT_TIMEZONE = settings.TIMEZONE
 
 
 def _get_calendar_service():
-    creds = None
-
-    if os.path.exists(TOKEN_PATH):
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
-            creds = flow.run_local_server(port=0)
-
-        os.makedirs("credentials", exist_ok=True)
-        with open(TOKEN_PATH, "w") as f:
-            f.write(creds.to_json())
-
-    return build("calendar", "v3", credentials=creds)
-
-
+    return get_service("calendar", "v3")
 
 
 def add_event(
@@ -106,8 +69,6 @@ def add_event(
         return f" Failed to add event: {e}"
 
 
-
-
 def quick_add_event(text: str) -> str:
     """
     Uses Google Calendar's built-in NLP.
@@ -138,12 +99,10 @@ def quick_add_event(text: str) -> str:
         return f" Quick add failed: {e}"
 
 
-
-
 def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
     try:
         service  = _get_calendar_service()
-        
+
         # Use local timezone for calculations
         tz = ZoneInfo(DEFAULT_TIMEZONE)
         now = datetime.now(tz)
@@ -153,7 +112,7 @@ def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
         # The API needs UTC times, so convert from local to UTC
         now_utc = now.astimezone(ZoneInfo("UTC"))
         end_utc = end_time.astimezone(ZoneInfo("UTC"))
-        
+
         timeMin = now_utc.isoformat().replace("+00:00", "Z")
         timeMax = end_utc.isoformat().replace("+00:00", "Z")
 
@@ -179,7 +138,7 @@ def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
                 tz       = ZoneInfo(DEFAULT_TIMEZONE)
                 dt_local = dt.astimezone(tz)
                 time_str = dt_local.strftime("%b %d, %I:%M %p")
-            except Exception:
+            except ValueError:
                 time_str = start
 
             title    = e.get("summary", "(no title)")
@@ -198,16 +157,14 @@ def list_events(days_ahead: int = 7, max_results: int = 10) -> str:
         return f" Could not fetch events: {e}"
 
 
-
-
 def delete_event(title: str) -> str:
     try:
         service = _get_calendar_service()
-        
+
         # Use local timezone
         tz = ZoneInfo(DEFAULT_TIMEZONE)
         now = datetime.now(tz)
-        
+
         # Convert to UTC for the API
         now_utc = now.astimezone(ZoneInfo("UTC"))
         timeMin = now_utc.isoformat().replace("+00:00", "Z")
@@ -236,8 +193,6 @@ def delete_event(title: str) -> str:
         return f" Calendar error: {e}"
     except Exception as e:
         return f" Delete failed: {e}"
-
-
 
 
 def parse_event_datetime(text: str) -> datetime | None:
@@ -305,11 +260,11 @@ def parse_event_datetime(text: str) -> datetime | None:
             base = datetime.strptime(date_str, "%B %d").replace(
                 year=now.year, tzinfo=ZoneInfo(DEFAULT_TIMEZONE)
             )
-        except Exception:
+        except ValueError:
             pass
 
     if hour is not None:
         return base.replace(hour=hour, minute=minute, second=0, microsecond=0)
 
-    
+
     return base.replace(hour=9, minute=0, second=0, microsecond=0)

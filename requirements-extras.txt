@@ -1,0 +1,6 @@
+# OCR for scanned PDFs (also install Tesseract; set TESSERACT_CMD / POPPLER_PATH)
+pdf2image==1.17.0
+pytesseract==0.3.13
+
+# BookMyShow browser automation (then run: playwright install chromium)
+playwright==1.57.0

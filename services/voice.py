@@ -1,41 +1,50 @@
-import speech_recognition as sr
-import pyttsx3
-import sounddevice as sd
-import soundfile as sf
-import tempfile
+"""
+services/voice.py - Microphone input and spoken output for the terminal UI.
+
+Optional: pip install -r requirements-voice.txt
+"""
+
 import os
+import tempfile
 
-engine = pyttsx3.init()
-engine.setProperty("rate", 180)
+from core.logger import get_logger
 
-def speak(text):
-    engine.say(text)
-    engine.runAndWait()
+logger = get_logger(__name__)
 
-def listen(duration=5, samplerate=16000):
+_engine = None
+
+
+def speak(text: str) -> None:
+    global _engine
+    import pyttsx3
+
+    if _engine is None:
+        _engine = pyttsx3.init()
+        _engine.setProperty("rate", 180)
+    _engine.say(text)
+    _engine.runAndWait()
+
+
+def listen(duration: int = 5, samplerate: int = 16000) -> str:
+    """Record `duration` seconds from the microphone and return the transcript ('' on failure)."""
+    import sounddevice as sd
+    import soundfile as sf
+    import speech_recognition as sr
+
     print(" Listening...")
-
-    audio = sd.rec(
-        int(duration * samplerate),
-        samplerate=samplerate,
-        channels=1,
-        dtype="int16"
-    )
+    audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype="int16")
     sd.wait()
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
-        sf.write(f.name, audio, samplerate)
-        filename = f.name
-
-    r = sr.Recognizer()
-    with sr.AudioFile(filename) as source:
-        audio_data = r.record(source)
-
-    os.unlink(filename)
-
+    fd, filename = tempfile.mkstemp(suffix=".wav")
+    os.close(fd)
     try:
-        text = r.recognize_google(audio_data)
-        print(f"You (voice): {text}")
-        return text
-    except:
+        sf.write(filename, audio, samplerate)
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(filename) as source:
+            audio_data = recognizer.record(source)
+        return recognizer.recognize_google(audio_data)
+    except (sr.UnknownValueError, sr.RequestError) as e:
+        logger.warning(f"Speech recognition failed: {e}")
         return ""
+    finally:
+        os.unlink(filename)

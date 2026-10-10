@@ -50,10 +50,11 @@ def analyze_orchestration_efficiency(trace_file="research/logs/orchestration_tra
     print("-" * 60)
     
     stage_names = {
-        1: "Stage 1: Pattern Matching",
-        2: "Stage 2: LLM Intent Detection",
-        3: "Stage 3: Specialized Handlers",
-        4: "Stage 4: Fallback Reasoning"
+        # Must match core/handlers/base.py (stage 0 = slash commands, not counted)
+        1: "Stage 1: Pattern-matched handlers",
+        2: "Stage 2: Gemini tool routing",
+        3: "Stage 3: Retrieval (PDF RAG / Wikipedia)",
+        4: "Stage 4: LLM fallback answer"
     }
     
     for stage in sorted(stage_counts.keys()):
@@ -63,13 +64,14 @@ def analyze_orchestration_efficiency(trace_file="research/logs/orchestration_tra
         
         print(f"{stage_names[stage]:<40} {count:>4} ({percentage:>5.1f}%) | Avg latency: {avg_latency:>6.1f}ms")
     
-    # Key finding: percentage of requests NOT requiring expensive LLM (stages 1 & 3)
-    non_llm_stages = stage_counts.get(1, 0) + stage_counts.get(3, 0)
+    # Key finding: requests routed without an LLM deciding what to do (stage 1).
+    # Stage 3 (RAG) still generates its answer with an LLM, so it is not counted.
+    non_llm_stages = stage_counts.get(1, 0)
     non_llm_percentage = (non_llm_stages / total) * 100
     
     print("\n" + "-" * 60)
-    print(f"KEY FINDING: Non-LLM handling (Stages 1+3): {non_llm_percentage:.1f}%")
-    print(f"             LLM-dependent (Stages 2+4):    {100-non_llm_percentage:.1f}%")
+    print(f"KEY FINDING: Pattern-routed, no LLM (Stage 1): {non_llm_percentage:.1f}%")
+    print(f"             LLM involved (Stages 2-4):       {100-non_llm_percentage:.1f}%")
     print("-" * 60)
     
     # Latency analysis

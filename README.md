@@ -1,95 +1,201 @@
-# Orchestrix: A Multi-Model Agentic AI Assistant
+# Orchestrix
 
-## Overview
-Orchestrix AI is a hybrid-inference autonomous agent architecture optimized for local data sovereignty and low-latency task automation. It addresses the computational bottleneck between high-latency cloud APIs and resource-constrained edge devices through an intelligent multi-agent orchestration layer.
+[![CI](https://github.com/saisaharsh3/Orchestrix_AI-Multi-Model_Agentic_AI_Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/saisaharsh3/Orchestrix_AI-Multi-Model_Agentic_AI_Assistant/actions/workflows/ci.yml)
 
-By implementing a deterministic dynamic routing engine, the system evaluates query complexity and resource availability in real-time, bridging the gap between local computational efficiency and cloud-based cognitive depth.
+A personal assistant that runs on your own machine and decides, request by
+request, whether the request needs a model at all, whether the on-device model
+(Llama 3 8B via Ollama) is enough, or whether to use the cloud (Gemini).
+It connects to Gmail, Google Calendar, Tasks and Drive, controls an Android
+phone over ADB, answers questions about your PDFs entirely on-device, and is
+reachable from a terminal, a Telegram bot, or an HTTP API.
 
-## Key Achievements & Breakthroughs
-* **Hardware-Optimized Edge Compute:** Optimized local agent execution via 62.5% GPU layer-offloading, enabling real-time, zero-latency inference on a constrained 4GB VRAM budget.
-* **Stylometric Privacy Defense:** Built a custom Stylometric Transformer yielding a 62% linkability reduction to protect user identity during cloud-agent interactions.
-* **Zero-Latency Document Intelligence:** Deployed an on-device agentic RAG pipeline via FAISS, eliminating network data transit to achieve a 5.1x retrieval throughput win.
-* **Massive Latency Reduction:** Achieved up to a 40.9% reduction in latency for routine automation tasks compared to cloud-only solutions, maintaining high operational autonomy while keeping data on-device.
-* **Thermal & Power Efficiency:** Successfully offloaded 38.4% of tasks from the GPU using deterministic routing, preventing thermal throttling on consumer-grade hardware during sustained usage.
+## Highlights
 
-## Core Features & Architecture
+- **Deterministic routing first.** A pipeline of pattern-based handlers covers
+  common requests (tasks, calendar, email, weather, reminders, phone control)
+  without calling a model to decide what to do.
+- **Local-first privacy.** In local mode nothing is sent to a cloud model —
+  including PDF content and email drafts. If the local model fails, you are
+  told and choose `/api` yourself; there is no silent cloud fallback.
+- **On-device PDF Q&A.** FAISS (`IndexFlatIP`, 384-dim MiniLM embeddings) with
+  hybrid semantic + keyword retrieval and optional OCR for scanned pages.
+- **Gemini function calling** (API mode) for phrasings the patterns miss,
+  restricted to read-only tools (weather, prices, calendar, inbox, Drive).
+- **Stealth Mode** normalises writing style before a query goes to the cloud,
+  reducing cross-mode stylometric linkability by 18.5% in our experiment
+  (see [research/](research/README.md)).
+- **Confirm before acting.** Sending email and adding calendar events always
+  wait for an explicit YES.
 
-### 1. Deterministic Orchestration Layer (The Decision Brain)
-Orchestrix acts as a high-speed traffic controller for linguistic and functional tasks. It utilizes a hierarchical source-priority waterfall to route queries based on their entropy:
-* **Internal Loop:** Hardware commands and sensitive data queries are handled strictly within the local environment.
-* **External Loop:** High-entropy reasoning tasks that exceed local capabilities are dynamically offloaded to cloud APIs (like Gemini) via encrypted OAuth 2.0 connections.
+## Architecture
 
-### 2. High-Efficiency Local Inference Engine
-Running a modern LLM on a mid-range mobile GPU (like an NVIDIA RTX 3050 Ti) is a massive hurdle due to VRAM limitations. Orchestrix solves this by utilizing a 4-bit quantized (q4_K_M) Llama 3 8B model.
-* This hybrid quantization maintains approximately 96% of the base model's semantic accuracy while reducing the memory footprint to just 4.8 GB.
-* By offloading 20 of the 33 layers to the GPU, the system leverages CUDA cores for heavy lifting while the Ryzen 7 CPU handles the remaining parameters, delivering responses in under 400ms.
+```mermaid
+flowchart LR
+    CLI[main.py] --> O
+    TG[telegram_bot.py<br/>allow-listed users] --> O
+    API[app/api.py<br/>token auth] --> O
+    O[core/orchestrator.py<br/>per-user session + trace] --> P
 
-### 3. Smart Document Intelligence (FAISS RAG Pipeline)
-The agent features a Retrieval-Augmented Generation pipeline using FAISS (Facebook AI Similarity Search) configured with an IndexFlatIP and 384-dimensional dense vector embeddings. By keeping the embedding and semantic retrieval process entirely on-device, it provides sub-millisecond retrieval speeds.
+    subgraph P[core/handlers pipeline · first match wins]
+      direction TB
+      C[commands] --> PEND[pending confirmations<br/>email · calendar · booking]
+      PEND --> H[pattern handlers<br/>features · utilities · tasks<br/>email · calendar · phone]
+      H --> R[retrieval<br/>PDF RAG · Wikipedia]
+      R --> F[fallback<br/>web search + LLM<br/>Gemini tool routing in API mode]
+    end
 
-### 4. Contextual Stylometric Transformer
-When a system switches between a small local model and a massive cloud model, users often experience "personality drift". Orchestrix includes a Contextual Stylometric Transformer to solve this:
-* **Persona Consistency:** Applies a transformation mask to normalize syntactic variance, ensuring the assistant's "voice" remains unified across all processing modes. It achieves an 18.5% improvement in cross-mode response harmony.
-* **Identity Defense:** Disrupts recognizable sentence patterns (Syntactic Masking) and standardizes word choice (Lexical Smoothing) to prevent adversaries from linking cloud queries back to your local profile.
-
-### 5. Safe Execution & Ambiguity Detection
-To mitigate the risk of incorrect tool execution (e.g., executing the wrong web automation script), the system utilizes a SoftMax Confidence Threshold.
-* If a model's confidence falls below the threshold, an Ambiguity Detection module triggers a clarification loop, reducing "False Positive" executions by 22%.
-* A strict **Privacy Consent Gate** intercepts 100% of queries identified as sensitive, asking the user for permission before bridging to the cloud.
-
-## Performance Benchmarks
-
-The framework was heavily stress-tested on an AMD Ryzen 7 6800HS workstation with 16GB RAM and an NVIDIA RTX 3050 Ti GPU.
-
-| Inference Tier | Hardware | Latency (Mean) | Latency (P99) | Intent Accuracy |
-| :--- | :--- | :--- | :--- | :--- |
-| **Heuristic Rules** | Ryzen 7 CPU | 12.5 ms | 18.2 ms | 99.1% |
-| **Local LLM (4-bit)** | RTX 3050 Ti | 842.0 ms | 1,120.5 ms | 84.8% |
-| **Cloud LLM (Flash)** | Remote API | 1,425.0 ms | 3,850.0 ms | 91.3% |
-
-*Data extracted from the Latency-Accuracy Pareto Analysis.*
-
-
-##  Prerequisites
-```bash
--   Python 3.9+
--   Ollama / llama.cpp backend
--   Google Gemini API Key
--   NVIDIA GPU (recommended)
+    H --> T[tools/<br/>Gmail · Calendar · Tasks · Drive<br/>ADB phone · maps · finance · URLs]
+    R --> L
+    F --> L[core/model_manager.py]
+    L -->|local| OL[Ollama<br/>llama3 8B q4_K_M]
+    L -->|api| GM[Gemini]
+    O --> DB[(SQLite<br/>prefs · memory · reminders)]
 ```
 
-##  Installation
+Each request is routed through `core/handlers/` in order; the stage that
+answered it (0–4) is logged to `research/logs/orchestration_trace.jsonl`.
 
-### Clone Repository
+## Quick start
 
-``` bash
+### 1. Prerequisites
+
+- Python 3.10+
+- [Ollama](https://ollama.com) with the default model:
+  `ollama pull llama3:8b-instruct-q4_K_M`
+- A [Gemini API key](https://aistudio.google.com/apikey) (for API mode)
+- Optional: an NVIDIA GPU (20 layers are offloaded by default, `OLLAMA_NUM_GPU`),
+  `adb` for phone control, ffmpeg for voice, Tesseract + Poppler for OCR
+
+### 2. Install
+
+```bash
 git clone https://github.com/saisaharsh3/Orchestrix_AI-Multi-Model_Agentic_AI_Assistant.git
 cd Orchestrix_AI-Multi-Model_Agentic_AI_Assistant
-```
-
-### Create Virtual Environment
-
-``` bash
 python -m venv venv
-source venv/bin/activate
-# Windows:
-venv\Scripts\activate
-```
-
-### Install Dependencies
-
-``` bash
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+# optional extras
+pip install -r requirements-voice.txt     # Whisper voice messages, mic input
+pip install -r requirements-extras.txt    # OCR, BookMyShow browser automation
 ```
 
-### Run Application
+### 3. Configure
 
-``` bash
-python main.py
+```bash
+cp .env.example .env
 ```
 
-------------------------------------------------------------------------
+Fill in at least `GEMINI_API_KEY`. Every setting is documented in
+[.env.example](.env.example).
 
+**Telegram bot:** create a bot with [@BotFather](https://t.me/BotFather), put
+the token in `TELEGRAM_BOT_TOKEN`, and put your Telegram user id (ask
+[@userinfobot](https://t.me/userinfobot)) in `TELEGRAM_ALLOWED_USER_IDS`.
+The bot refuses to start without an allow-list: it can read your mail and
+control your phone.
 
+**Google APIs (Gmail, Calendar, Tasks, Drive):** in Google Cloud Console,
+enable the four APIs, create an OAuth client of type *Desktop app*, and save
+its JSON as `credentials/credentials.json`. The first Google request opens a
+browser for consent and stores `credentials/token.json`.
 
+### 4. Run
 
+```bash
+python main.py                                   # terminal
+python telegram_bot.py                           # Telegram bot
+uvicorn app.api:app --host 127.0.0.1 --port 8000 # HTTP API
+```
+
+API example:
+
+```bash
+curl -X POST localhost:8000/chat -F message="weather in Pune" -F model_type=local
+```
+
+Set `ORCHESTRIX_API_TOKEN` and send `Authorization: Bearer <token>` to allow
+non-localhost clients.
+
+### Docker
+
+```bash
+docker compose up -d
+docker compose exec ollama ollama pull llama3:8b-instruct-q4_K_M
+docker compose --profile api up -d api   # optional HTTP API on 127.0.0.1:8000
+```
+
+Authorise Google once on the host (so `credentials/token.json` exists) before
+running in Docker; the consent flow needs a browser.
+
+## What you can say
+
+| Area | Examples |
+|---|---|
+| Everyday | `weather in Mumbai` · `convert 500 USD to INR` · `TCS stock price` · `bitcoin price` |
+| Web | `summarize https://…` · `track price https://…` · `show tracked prices` |
+| Google | `check my email` · `send email to a@b.com use ai write about the launch` · `add meeting with Ravi tomorrow at 3pm` · `add task buy milk` · `find resume on drive` |
+| Reminders (Telegram) | `remind me to call mom at 6pm` · `show my reminders` |
+| PDFs | send a PDF, then ask about it · `compare the two PDFs` · `generate a summary report` |
+| Maps | `find restaurants nearby` · `directions to the airport` (share your location first) |
+| Phone (ADB) | `open youtube` · `play lofi on spotify` · `set alarm for 7:30am` · `set volume to 40%` |
+| Controls | `/api` · `/local` · `/web on` · `/rag on` · `/stealth_mode on` · `/status` |
+
+## Performance (measured)
+
+From [research/results/benchmark_results.json](research/results/benchmark_results.json)
+on a Ryzen 7 6800HS / RTX 3050 Ti (4 GB) laptop:
+
+| | Mean latency |
+|---|---|
+| Local, Llama 3 8B q4_K_M (Ollama) | 1.06 – 1.19 s |
+| Cloud, Gemini Flash | 1.94 – 2.01 s |
+| FAISS retrieval, one PDF | 6 – 19 ms per query |
+
+Small samples (3 prompts × 3 runs; 5 retrieval queries). Reproduce with
+`python scripts/benchmark.py`. The research experiments, what has and has
+not been measured yet, and how to run them are in
+[research/README.md](research/README.md).
+
+## Project layout
+
+```
+app/            HTTP API (FastAPI)
+config/         settings (single place that reads .env) and user preferences
+core/
+  orchestrator.py   request entry point, tracing
+  handlers/         routing pipeline, one module per area
+  session.py        per-user state (pending actions, toggles, PDFs)
+  storage.py        SQLite persistence
+  model_manager.py  local/cloud generation with the privacy rule
+  tool_router.py    Gemini function calling over read-only tools
+models/         Ollama and Gemini clients
+rag/            FAISS vector store
+tools/          integrations (Google, phone/ADB, maps, finance, URLs, search)
+research/       experiments and results
+scripts/        benchmarks
+tests/          pytest suite (no network, no models needed)
+```
+
+## Development
+
+```bash
+pip install -r requirements-dev.txt
+pytest                 # ~100 tests, all external services faked
+ruff check .
+pre-commit install     # ruff + secret scanning on every commit
+```
+
+CI runs lint and tests on Python 3.10 and 3.12.
+
+## Limitations
+
+- Intent detection is pattern-based; unusual phrasings fall through to the
+  LLM (or to Gemini tool routing in API mode).
+- Stealth Mode is a partial defence; the stylometry result comes from
+  synthetic queries, not real users.
+- Reminders and the daily briefing are Telegram-only.
+- BookMyShow "automation" only opens the site; the booking steps are not automated yet.
+
+## License
+
+[MIT](LICENSE)

@@ -1,7 +1,7 @@
 """
 core/stylometric_defense.py - Linguistic Masking Defense (Experiment 5)
 
-Implements stylometric defense mechanisms to reduce the effectiveness of 
+Implements stylometric defense mechanisms to reduce the effectiveness of
 stylometric attacks that can link users across local-mode and API-mode queries.
 
 Reference: Experiment 5 (Stylometric Unlinkability Analysis)
@@ -10,7 +10,7 @@ Research: See research/EXPERIMENT_5_CRITICAL_BRIEFING.md
 
 import re
 import string
-from typing import Dict, List
+
 from core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -25,7 +25,7 @@ class StyleometricDefense:
         Normalize writing style by removing stylometric outliers.
 
         Defense mechanism: -18.5% reduction in stylometric similarity (Exp 5)
-        
+
         This is Phase 1 defense: quick deployment, partial mitigation.
         For stronger defense, see semantic_paraphrase() or text_differential_privacy().
 
@@ -196,7 +196,7 @@ class StyleometricDefense:
         return query
 
     @staticmethod
-    def get_defense_metrics() -> Dict[str, float]:
+    def get_defense_metrics() -> dict[str, float]:
         """
         Return effectiveness metrics for all defenses from Experiment 5.
 

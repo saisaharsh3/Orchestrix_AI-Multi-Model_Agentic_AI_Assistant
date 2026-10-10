@@ -1,7 +1,13 @@
 """
 benchmark.py - RAG Accuracy and Latency Benchmarking Tool
-Run from project root: python benchmark.py
+Run from project root: python scripts/benchmark.py
 """
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 
 import time
 import json
@@ -11,8 +17,8 @@ from datetime import datetime
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 
-RESULTS_FILE = "data/benchmark_results.json"
-os.makedirs("data", exist_ok=True)
+RESULTS_FILE = "research/results/benchmark_results.json"
+os.makedirs("research/results", exist_ok=True)
 
 
 # ── Color output for terminal ─────────────────────────────────────────────────

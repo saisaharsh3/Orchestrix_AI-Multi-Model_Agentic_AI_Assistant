@@ -1,306 +1,121 @@
-# Orchestrix Research Experiments
+# Orchestrix research
 
-Complete research execution framework for validating 4 research contributions.
+Five experiments on how the hybrid local/cloud assistant behaves. This page is
+the single summary; the two long write-ups are
+[exp4_privacy_model.md](exp4_privacy_model.md) and
+[exp5_stylometry_analysis.md](exp5_stylometry_analysis.md).
 
-## 📋 Quick Start
+> **Status of the numbers.** Earlier versions of these scripts filled gaps with
+> placeholder values (Experiment 3 used fixed 45 ms / 380 ms latencies and
+> Experiment 2 derived "accuracy" from confidence + 0.1). Those code paths have
+> been removed. Results in [results/](results/) and any you generate now are
+> measured. Re-run the pipeline below before quoting a figure.
 
-### Phase 1: Setup (30 minutes)
-1. Read [INSTRUMENTATION_GUIDE.md](INSTRUMENTATION_GUIDE.md)
-2. Integrate instrumentation into `core/orchestrator.py`
-3. Verify traces are generated: `python main.py` → type "show my tasks"
+## How requests are traced
 
-### Phase 2: Data Collection (2-4 hours)
-1. Generate test queries: `python research/generate_test_queries.py`
-2. Run all 500 queries through system (collects traces)
-3. Verify `research/logs/orchestration_trace.jsonl` has 500+ lines
+Every request through `core/orchestrator.py` appends one JSON line to
+`research/logs/orchestration_trace.jsonl` (disable with `ENABLE_RESEARCH_TRACE=false`):
 
-### Phase 3: Analysis (20 minutes)
+| Field | Meaning |
+|---|---|
+| `stage_reached` | 0 command · 1 pattern handler · 2 Gemini tool routing · 3 retrieval (RAG / Wikipedia) · 4 LLM fallback |
+| `total_latency_ms` | end-to-end time for the request |
+| `model_type` | `local` (Ollama) or `api` (Gemini) |
+| `confidence` | handler's confidence, when it reports one |
+| `input` | first 100 characters of the message |
+
+Stage definitions live in `core/handlers/base.py`.
+
+## Running everything
+
 ```bash
-bash research/run_all_experiments.sh
-```
-
-## 📊 Research Experiments
-
-| # | Name | Description | Input | Output |
-|---|------|-------------|-------|--------|
-| 1 | **Orchestration Efficiency** | Measures % requests handled by each stage | `orchestration_trace.jsonl` | `results_exp1.json` |
-| 2 | **Confidence Calibration** | Analyzes confidence score distributions | `orchestration_trace.jsonl` | `results_exp2.json` |
-| 3 | **Hybrid Efficiency** | Compares local vs API latency/accuracy | `orchestration_trace.jsonl` + `test_queries.json` | `results_exp3.json` |
-| 4 | **Privacy Model** | Formal threat analysis (non-computational) | Code inspection + threat model framework | `exp4_privacy_model.md` |
-
-## 🔬 Experiment Details
-
-### Experiment 1: Orchestration Efficiency
-```bash
+pip install -r requirements-research.txt
+python research/generate_test_queries.py          # writes research/test_queries.json
+python research/run_test_queries.py --model both  # needs Ollama running and GEMINI_API_KEY
 python research/exp1_orchestration_efficiency.py
-```
-
-**Measures**: Distribution of requests across 4-stage pipeline
-
-**Key Metrics**:
-- % Stage 1 (Pattern Matching) — target: 42%
-- % Stage 2 (LLM Intent) — target: 35%
-- % Stage 3 (Handlers) — target: 18%
-- % Stage 4 (Fallback) — target: 5%
-
-**Target Finding**: ≥80% non-LLM handling (Stages 1+3)
-
-**Output**: `results_exp1.json`
-
----
-
-### Experiment 2: Confidence Calibration
-```bash
 python research/exp2_confidence_calibration.py
-```
-
-**Measures**: Confidence score quality and calibration
-
-**Key Metrics**:
-- Distribution histograms (4 bins: [0.0-0.3], [0.3-0.6], [0.6-0.8], [0.8-1.0])
-- Expected Calibration Error (ECE) — target: <0.05
-- Mean confidence — target: 0.65
-
-**Manual Step**: Label 100 random queries for ground-truth accuracy
-
-**Output**: `results_exp2.json`
-
----
-
-### Experiment 3: Hybrid Efficiency
-```bash
 python research/exp3_hybrid_efficiency.py
+python research/exp5_stylometry.py
+python research/generate_graphs.py                # reads results_exp*.json, writes graphs/
 ```
 
-**Measures**: Local vs API model tradeoffs
+`bash research/run_all_experiments.sh` runs the analysis steps in order.
+Latency/RAG micro-benchmarks: `python scripts/benchmark.py` → [results/benchmark_results.json](results/benchmark_results.json).
 
-**Key Metrics by Category**:
-- **Simple**: Local 45ms (8x faster) ✓
-- **Complex**: API 380ms (18% better accuracy) ✓
-- **RAG**: User's privacy choice (local: zero-disclosure, API: faster)
+## Experiments
 
-**Output**: `results_exp3.json` + decision table
+### 1 · Orchestration efficiency
+*How many requests are routed without asking an LLM what to do?*
+Counts traces per stage. Stage 1 is the only LLM-free route; stage 3 still uses
+an LLM to write the RAG answer.
 
----
+**Last measured** (210 traces from March–April 2026, recorded before every path
+was instrumented, so only stages 1 and 4 appear): stage 1 = 8.1%, stage 4 = 91.9%;
+median latency 1.2 s (stage 1) vs 9.0 s (stage 4). Re-run with the current
+tracing for a full distribution.
 
-### Experiment 4: Privacy Threat Model
-**File**: `exp4_privacy_model.md`
+### 2 · Confidence calibration
+*Do handler confidence scores match how often the answer is right?*
+Reports the confidence distribution, and Expected Calibration Error **only**
+when `research/calibration_labels.json` contains at least 30 human labels
+(`auto_label: false`). Auto-generated labels are ignored.
 
-**Analysis**: 
-- Formal threat models (network eavesdropping + cloud provider)
-- Local mode guarantee: `∀ pdf: ¬∃ external_call(pdf)`
-- API mode tradeoff: explicit privacy cost
-- Code inspection checklist for verification
+**Status:** ECE not yet measured — no human labels exist.
 
-**Output**: Markdown threat model document (static analysis, no code execution)
+### 3 · Hybrid efficiency
+*Local vs cloud latency per query type (simple / complex / RAG).*
+Uses stage-4 traces from `run_test_queries.py --model both`, matched to
+`test_queries.json` by text. Missing data is reported as missing. Answer
+accuracy is not measured here.
 
----
+**Measured so far** ([results/benchmark_results.json](results/benchmark_results.json),
+3 prompts × 3 runs, RTX 3050 Ti laptop): local llama3 8B q4 ≈ 1.1–1.2 s mean,
+Gemini Flash ≈ 1.9–2.0 s mean. FAISS retrieval over one PDF: 6–19 ms per query
+(5 queries). The per-category comparison needs an API run of the test set.
 
-## 📁 File Structure
+### 4 · Privacy threat model
+Analytical, no code to run: [exp4_privacy_model.md](exp4_privacy_model.md).
+Claim: in local mode, no PDF content (or any other request content) is sent to
+an external API. Enforced in code:
 
-```
-research/
-├── generate_test_queries.py          # Generate 500 test queries
-├── exp1_orchestration_efficiency.py  # Experiment 1
-├── exp2_confidence_calibration.py    # Experiment 2
-├── exp3_hybrid_efficiency.py         # Experiment 3
-├── exp4_privacy_model.md             # Experiment 4 (threat model)
-├── run_all_experiments.sh            # Orchestrate all experiments
-├── INSTRUMENTATION_GUIDE.md          # Add logging to orchestrator.py
-├── README.md                          # This file
-│
-├── logs/
-│   └── orchestration_trace.jsonl     # GENERATED: Trace logs from running queries
-│
-└── results/
-    ├── test_queries.json             # GENERATED: 500 test queries
-    ├── results_exp1.json             # GENERATED: Orchestration efficiency results
-    ├── results_exp2.json             # GENERATED: Confidence calibration results
-    ├── results_exp3.json             # GENERATED: Hybrid efficiency results
-    └── summary.json                  # GENERATED: Executive summary
-```
+- `core/model_manager.py` never switches local → cloud on its own; when the
+  local model fails the user is told and must choose `/api` themselves.
+- Email drafting, RAG and fallback answers all use the session's model.
+- Gemini tool routing (stage 2) runs in API mode only.
+- `tests/test_orchestrator.py` checks the first two.
 
-## 🚀 Execution Timeline
+Out of scope for the guarantee: web search queries (DuckDuckGo) and Wikipedia
+lookups, which are sent to those services in both modes when enabled.
 
-### Week 1: Data Collection & Experiments
+### 5 · Stylometric unlinkability
+*Can someone holding both your cloud queries and your local queries tell they
+were written by the same person?* Full write-up:
+[exp5_stylometry_analysis.md](exp5_stylometry_analysis.md).
 
-| Day | Task | Duration | Output |
-|-----|------|----------|--------|
-| Mon-Tue | Integrate instrumentation | 1-2 hrs | Traces generated |
-| Tue-Wed | Generate 500 test queries | 5 min | `test_queries.json` |
-| Wed-Fri | Run queries, collect traces | 2-4 hrs | `orchestration_trace.jsonl` (500+ entries) |
-| Fri | Run 4 experiments | 30 min | `results_exp1-4.json` + summary |
+Measured on the synthetic queries in `test_queries.json` (12 style features,
+cosine similarity):
 
-### Week 2: Analysis & Paper Draft
+| Defence | Mean max similarity | High-confidence links |
+|---|---|---|
+| None | 0.846 | 16 / 20 |
+| Paraphrasing | 0.847 (no gain) | — |
+| Random obfuscation | 0.814 (−3.7%) | — |
+| **Style normalisation** | **0.689 (−18.5%)** | 6 / 20 |
 
-| Day | Task | Duration | Output |
-|-----|------|----------|--------|
-| Mon-Tue | Analyze results, create figures | 1 day | Tables/graphs for paper |
-| Tue-Wed | Write methodology section | 1 day | 600-word methods section |
-| Wed-Thu | Write results section | 1 day | 500-word results with tables |
-| Thu-Fri | Draft proposal abstract | 1 day | 150-word abstract + 1500-word proposal |
+Style normalisation ships as **Stealth Mode** (`/stealth_mode on`,
+`core/stylometric_defense.py`), applied to API-mode queries. It is a partial
+defence; stronger options (LLM paraphrasing, text differential privacy,
+query pooling) are listed in the write-up. Limitation: synthetic queries, not
+real users.
 
-### Week 3: Submission
+## Files
 
-| Day | Task | Duration | Output |
-|-----|------|----------|--------|
-| Mon-Tue | Feedback integration | 1 day | Proposal refinements |
-| Tue-Wed | Final review | 1 day | Submit proposal to advisor |
-
----
-
-## 🎯 Research Contributions Validated
-
-### Contribution 1: Staged Routing Orchestration
-**Claim**: Multi-stage routing reduces LLM dependency by ~80%
-
-**Validated by**: Experiment 1
-**Expected Result**: Stages 1+3 handle ≥80% of requests
-
-### Contribution 2: Confidence Calibration
-**Claim**: Uncertainty scoring enables user trust with ECE<0.05
-
-**Validated by**: Experiment 2
-**Expected Result**: Mean confidence 0.65, ECE <0.05
-
-### Contribution 3: Hybrid Efficiency
-**Claim**: Local vs API creates Pareto frontier (latency/accuracy/privacy)
-
-**Validated by**: Experiment 3
-**Expected Result**: Local 8x faster (simple), API 18% better (complex)
-
-### Contribution 4: Local-First Privacy
-**Claim**: Zero-disclosure guarantee with formal threat model
-
-**Validated by**: Experiment 4
-**Expected Result**: Formal proof that local mode never calls API with PDF content
-
----
-
-## 📈 Expected Results Summary
-
-After completing all experiments, expect:
-
-```json
-{
-  "experiment_1": {
-    "non_llm_handling": "80%",
-    "stage_distribution": {
-      "stage_1": "42%",
-      "stage_2": "35%",
-      "stage_3": "18%",
-      "stage_4": "5%"
-    }
-  },
-  "experiment_2": {
-    "mean_confidence": 0.65,
-    "ece": 0.04,
-    "high_confidence_percentage": 24
-  },
-  "experiment_3": {
-    "local_latency_ms": 45,
-    "api_latency_ms": 380,
-    "speedup_x": 8.4,
-    "accuracy_gain_api": "18%"
-  },
-  "experiment_4": {
-    "privacy_guarantee": "LOCAL_MODE_ZERO_DISCLOSURE",
-    "threat_model": "Complete",
-    "recommendations": "5 guidelines"
-  }
-}
-```
-
----
-
-## ✅ Verification Checklist
-
-### Before Running Experiments
-- [ ] Read INSTRUMENTATION_GUIDE.md completely
-- [ ] Integrated logging code into core/orchestrator.py
-- [ ] Tested logging: `python main.py` generates trace file
-- [ ] `research/logs/orchestration_trace.jsonl` exists and has content
-
-### During Experiments
-- [ ] `python research/generate_test_queries.py` created test_queries.json
-- [ ] Ran all 500 queries through system
-- [ ] `orchestration_trace.jsonl` has 500+ lines
-
-### After Experiments
-- [ ] `bash research/run_all_experiments.sh` completed successfully
-- [ ] All 4 result files generated: `results_exp1-4.json`
-- [ ] `summary.json` shows all key findings
-- [ ] Results match expected targets (80% non-LLM, etc.)
-
----
-
-## 🐛 Troubleshooting
-
-### Problem: "Trace file not found"
-**Fix**: 
-1. Make sure instrumentation is integrated into `core/orchestrator.py`
-2. Run `python main.py` and type a simple query
-3. Check if `research/logs/orchestration_trace.jsonl` exists
-
-### Problem: "No trace data found"
-**Fix**:
-1. Verify traces are being written: `tail research/logs/orchestration_trace.jsonl`
-2. Check TRACE_FILE path is correct in orchestrator.py
-3. Run exact command: `python main.py` → type "show my tasks"
-
-### Problem: Experiment scripts fail with "not enough data"
-**Fix**:
-1. Generate queries: `python research/generate_test_queries.py`
-2. Collect traces from all 500 queries
-3. Verify `research/logs/orchestration_trace.jsonl` has 500+ entries
-4. Re-run experiments
-
-### Problem: Accuracy numbers seem wrong
-**Fix**: 
-- Experiment 2 requires manual ground-truth labels
-- See `exp2_confidence_calibration.py` for calibration curve setup
-- Current ECE is simulated; replace with actual ground truth
-
----
-
-## 📚 Paper Writing Guide
-
-### Methodology Section (use Experiment 1-4 results)
-
-```
-"We instrumentmented the Orchestrix system to track requests through 
-a 4-stage routing pipeline. Experiment 1 analyzed stage distribution 
-across 500 diverse queries, measuring both latency and successful 
-routing rates. Experiment 2 evaluated confidence calibration by 
-analyzing score distributions. Experiment 3 compared local vs API model 
-efficiency across complexity levels. Experiment 4 formalized privacy 
-guarantees via threat modeling."
-```
-
-### Results Section (table templates)
-
-```
-TABLE 1: Stage Distribution
-| Stage | Count | Percentage | Avg Latency |
-|-------|-------|------------|-------------|
-| 1     | 210   | 42%        | 35ms        |
-| 2     | 175   | 35%        | 120ms       |
-| ...
-```
-
----
-
-## 📞 Support
-
-For questions about:
-- **Experiment design**: See individual `.py` files (well-commented)
-- **Instrumentation**: See INSTRUMENTATION_GUIDE.md
-- **Privacy model**: See exp4_privacy_model.md threat model section
-- **Data collection**: Check logs in research/logs/ directory
-
----
-
-**Target**: 4-contribution research paper within 3 weeks
-**Status**: Experiments designed, code ready, waiting for data collection ▶️
-
-Last updated: 2026-03-21
+| Path | What |
+|---|---|
+| `exp1…exp3_*.py`, `exp5_stylometry.py` | analysis scripts |
+| `exp4_privacy_model.md`, `exp5_stylometry_analysis.md` | write-ups |
+| `generate_test_queries.py`, `test_queries.json` | test set (285 queries: 110 simple, 100 complex, 75 RAG) |
+| `run_test_queries.py` | replays the test set through the orchestrator |
+| `generate_graphs.py` | figures from `results_exp*.json` |
+| `results/` | curated measured results (committed) |
+| `logs/`, `graphs/`, `results_exp*.json` | generated locally (git-ignored) |

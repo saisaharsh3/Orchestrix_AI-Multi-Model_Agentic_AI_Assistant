@@ -10,8 +10,8 @@ import webbrowser
 
 from tools.web_automation.adb_manager import (
     is_phone_connected,
-    shell,
     launch_intent,
+    shell,
     wake_screen,
 )
 

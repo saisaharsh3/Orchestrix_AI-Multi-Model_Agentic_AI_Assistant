@@ -1,15 +1,11 @@
 """
-scheduler.py - Scheduled reminders and daily briefing
-Install: pip install apscheduler
-Add to .env: TELEGRAM_CHAT_ID=your_chat_id
-             DAILY_BRIEFING_HOUR=8  (optional, default 8am)
+scheduler.py - Scheduled reminders and the daily briefing (Telegram).
 
-Get your chat ID: message @userinfobot on Telegram
+Reminders are stored in SQLite (namespace "reminders") and scoped to the
+chat that created them. Set TELEGRAM_CHAT_ID for the daily briefing and
+DAILY_BRIEFING_HOUR to change its time (default 8).
 """
 
-import os
-import json
-import asyncio
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -17,140 +13,100 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 
-REMINDERS_FILE = "data/reminders.json"
-TIMEZONE       = "Asia/Kolkata"
-os.makedirs("data", exist_ok=True)
+from config.settings import settings
+from core.logger import get_logger
+from core.storage import get_store
 
-scheduler = AsyncIOScheduler(timezone=TIMEZONE)
+logger = get_logger(__name__)
 
+NAMESPACE = "reminders"
+TZ = ZoneInfo(settings.TIMEZONE)
 
-
-
-def _load_reminders() -> list:
-    try:
-        if os.path.exists(REMINDERS_FILE):
-            with open(REMINDERS_FILE) as f:
-                return json.load(f)
-    except Exception:
-        pass
-    return []
+scheduler = AsyncIOScheduler(timezone=settings.TIMEZONE)
 
 
-def _save_reminders(reminders: list):
-    with open(REMINDERS_FILE, "w") as f:
-        json.dump(reminders, f, indent=2)
+def _reminders(chat_id: str | None = None) -> list[dict]:
+    items = [value for _, value in get_store().items(NAMESPACE)]
+    if chat_id is not None:
+        items = [r for r in items if str(r.get("chat_id")) == str(chat_id)]
+    return sorted(items, key=lambda r: r.get("run_at", ""))
 
 
-
-
-async def _send_telegram_message(bot, chat_id: str, text: str):
+async def _send_telegram_message(bot, chat_id: str, text: str) -> None:
     try:
         await bot.send_message(chat_id=chat_id, text=text)
     except Exception as e:
-        print(f"Scheduler send error: {e}")
+        logger.error(f"Scheduler could not send message to {chat_id}: {e}")
 
 
-
-
-def schedule_reminder(
-    bot,
-    chat_id: str,
-    message: str,
-    run_at: datetime,
-    reminder_id: str = None,
-) -> str:
-    """
-    Schedule a one-time reminder message.
-    run_at: timezone-aware datetime
-    """
-    if run_at.tzinfo is None:
-        run_at = run_at.replace(tzinfo=ZoneInfo(TIMEZONE))
-
-    now = datetime.now(ZoneInfo(TIMEZONE))
-    if run_at <= now:
-        return "Error: Reminder time is in the past."
-
-    if reminder_id is None:
-        reminder_id = f"reminder_{int(run_at.timestamp())}"
-
+def _add_job(bot, reminder: dict, run_at: datetime) -> None:
     async def send_it():
-        await _send_telegram_message(bot, chat_id, f"Reminder: {message}")
-        # Remove from saved reminders after firing
-        reminders = _load_reminders()
-        reminders = [r for r in reminders if r.get("id") != reminder_id]
-        _save_reminders(reminders)
+        await _send_telegram_message(bot, reminder["chat_id"], f"Reminder: {reminder['message']}")
+        get_store().delete(NAMESPACE, reminder["id"])
 
     scheduler.add_job(
         send_it,
         trigger=DateTrigger(run_date=run_at),
-        id=reminder_id,
+        id=reminder["id"],
         replace_existing=True,
     )
 
-    # Persist
-    reminders = _load_reminders()
-    reminders.append({
-        "id":      reminder_id,
+
+def schedule_reminder(bot, chat_id: str, message: str, run_at: datetime) -> str:
+    """Schedule a one-time reminder. Naive datetimes are treated as TIMEZONE."""
+    if run_at.tzinfo is None:
+        run_at = run_at.replace(tzinfo=TZ)
+    if run_at <= datetime.now(TZ):
+        return "Error: Reminder time is in the past."
+
+    reminder = {
+        "id": f"reminder_{chat_id}_{int(run_at.timestamp())}",
         "message": message,
-        "run_at":  run_at.isoformat(),
-        "chat_id": chat_id,
-    })
-    _save_reminders(reminders)
+        "run_at": run_at.isoformat(),
+        "chat_id": str(chat_id),
+    }
+    _add_job(bot, reminder, run_at)
+    get_store().put(NAMESPACE, reminder["id"], reminder)
+    return f"Reminder set for {run_at.strftime('%b %d at %I:%M %p')}: {message}"
 
-    time_str = run_at.strftime("%b %d at %I:%M %p")
-    return f"Reminder set for {time_str}: {message}"
 
-
-def list_reminders() -> str:
-    reminders = _load_reminders()
+def list_reminders(chat_id: str | None = None) -> str:
+    reminders = _reminders(chat_id)
     if not reminders:
         return "No reminders scheduled."
-
     lines = [f"Scheduled reminders ({len(reminders)}):"]
     for r in reminders:
         try:
-            dt       = datetime.fromisoformat(r["run_at"])
-            time_str = dt.strftime("%b %d, %I:%M %p")
-        except Exception:
+            time_str = datetime.fromisoformat(r["run_at"]).strftime("%b %d, %I:%M %p")
+        except (KeyError, ValueError):
             time_str = r.get("run_at", "unknown")
         lines.append(f"- {r['message']} at {time_str}")
-
     return "\n".join(lines)
 
 
-def cancel_reminder(keyword: str) -> str:
-    reminders = _load_reminders()
-    matched   = [r for r in reminders if keyword.lower() in r["message"].lower()]
-
+def cancel_reminder(keyword: str, chat_id: str | None = None) -> str:
+    matched = [r for r in _reminders(chat_id) if keyword.lower() in r["message"].lower()]
     if not matched:
         return f"No reminder found matching '{keyword}'."
-
     for r in matched:
         try:
             scheduler.remove_job(r["id"])
         except Exception:
-            pass
-
-    remaining = [r for r in reminders if r not in matched]
-    _save_reminders(remaining)
+            pass  # job already fired or was never scheduled in this process
+        get_store().delete(NAMESPACE, r["id"])
     return f"Cancelled {len(matched)} reminder(s) matching '{keyword}'."
 
 
-
-
-def setup_daily_briefing(bot, chat_id: str, generate_briefing_fn):
-    """
-    Sends a morning briefing every day at DAILY_BRIEFING_HOUR.
-    generate_briefing_fn: async callable that returns briefing text
-    """
-    hour = int(os.getenv("DAILY_BRIEFING_HOUR", "8"))
+def setup_daily_briefing(bot, chat_id: str, generate_briefing_fn) -> None:
+    """Send `await generate_briefing_fn()` to chat_id every day at DAILY_BRIEFING_HOUR."""
+    hour = settings.DAILY_BRIEFING_HOUR
 
     async def send_briefing():
         try:
             text = await generate_briefing_fn()
             await _send_telegram_message(bot, chat_id, text)
         except Exception as e:
-            print(f"Daily briefing error: {e}")
+            logger.error(f"Daily briefing failed: {e}", exc_info=True)
 
     scheduler.add_job(
         send_briefing,
@@ -158,53 +114,30 @@ def setup_daily_briefing(bot, chat_id: str, generate_briefing_fn):
         id="daily_briefing",
         replace_existing=True,
     )
-    print(f"Daily briefing scheduled at {hour}:00 {TIMEZONE}")
+    logger.info(f"Daily briefing scheduled at {hour}:00 {settings.TIMEZONE}")
 
 
-
-
-def restore_reminders(bot, chat_id: str):
-    """
-    Re-add any saved reminders that haven't fired yet.
-    Call this when the bot starts.
-    """
-    reminders = _load_reminders()
-    now       = datetime.now(ZoneInfo(TIMEZONE))
-    kept      = []
-
-    for r in reminders:
+def restore_reminders(bot) -> None:
+    """Re-schedule saved reminders that have not fired yet; drop missed ones."""
+    now = datetime.now(TZ)
+    restored = 0
+    for r in _reminders():
         try:
             run_at = datetime.fromisoformat(r["run_at"])
             if run_at.tzinfo is None:
-                run_at = run_at.replace(tzinfo=ZoneInfo(TIMEZONE))
-
+                run_at = run_at.replace(tzinfo=TZ)
             if run_at <= now:
-                # Missed — skip
+                get_store().delete(NAMESPACE, r["id"])
                 continue
-
-            async def send_it(msg=r["message"], rid=r["id"], cid=r.get("chat_id", chat_id)):
-                await _send_telegram_message(bot, cid, f"Reminder: {msg}")
-                saved    = _load_reminders()
-                saved    = [x for x in saved if x.get("id") != rid]
-                _save_reminders(saved)
-
-            scheduler.add_job(
-                send_it,
-                trigger=DateTrigger(run_date=run_at),
-                id=r["id"],
-                replace_existing=True,
-            )
-            kept.append(r)
-
-        except Exception as e:
-            print(f"Could not restore reminder: {e}")
-
-    _save_reminders(kept)
-    if kept:
-        print(f"Restored {len(kept)} reminder(s).")
+            _add_job(bot, r, run_at)
+            restored += 1
+        except (KeyError, ValueError) as e:
+            logger.warning(f"Could not restore reminder {r.get('id')}: {e}")
+    if restored:
+        logger.info(f"Restored {restored} reminder(s)")
 
 
-def start_scheduler():
+def start_scheduler() -> None:
     if not scheduler.running:
         scheduler.start()
-        print("Scheduler started.")
+        logger.info("Scheduler started")

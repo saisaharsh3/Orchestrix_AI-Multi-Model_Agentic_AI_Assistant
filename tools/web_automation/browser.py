@@ -1,6 +1,10 @@
 # tools/web_automation/browser.py
 from playwright.sync_api import sync_playwright
 
+from core.logger import get_logger
+
+logger = get_logger(__name__)
+
 class Browser:
     def __init__(self):
         self.p = sync_playwright().start()
@@ -11,7 +15,7 @@ class Browser:
         self.page = self.browser.new_page()
 
     def open(self, url):
-        print(f" Opening {url}")
+        logger.info(f"Opening {url}")
         self.page.goto(url, timeout=60000)
 
     def close(self):

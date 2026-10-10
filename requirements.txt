@@ -1,59 +1,39 @@
-# ── Web framework ─────────────────────────────────────────────────────────
-fastapi
-uvicorn
-python-multipart
-pydantic
-python-dotenv
-requests
+# Core runtime: CLI, Telegram bot, HTTP API, PDF RAG.
+# Optional extras live in requirements-voice.txt, requirements-extras.txt,
+# requirements-research.txt; development tools in requirements-dev.txt.
 
-# ── LLM models ────────────────────────────────────────────────────────────
-ollama
-google-genai
+# ── Web API ───────────────────────────────────────────────────────────────
+fastapi==0.139.0
+uvicorn==0.39.0
+python-multipart==0.0.21
+pydantic==2.12.5
+python-dotenv==1.2.1
+requests==2.32.5
+httpx==0.28.1
 
-# ── Voice / Audio ─────────────────────────────────────────────────────────
-torch
-torchaudio
-openai-whisper
-# NOTE: ffmpeg is required but installed as a system tool, not via pip
-# Windows: extract to C:\ffmpeg-8.0.1-essentials_build and add bin\ to PATH
-# Verify with: ffmpeg -version
+# ── Models ────────────────────────────────────────────────────────────────
+ollama==0.6.1
+google-genai==1.56.0
 
-# ── RAG / PDF ─────────────────────────────────────────────────────────────
-sentence-transformers
-faiss-cpu
-pypdf
-pdf2image
-pytesseract
-fpdf2
+# ── RAG / PDF (sentence-transformers pulls in torch) ──────────────────────
+sentence-transformers==5.1.2
+faiss-cpu==1.13.0
+numpy==2.0.2
+pypdf==6.5.0
+fpdf2==2.8.7
 
 # ── Google APIs ───────────────────────────────────────────────────────────
-google-api-python-client
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
+google-api-python-client==2.187.0
+google-auth==2.45.0
+google-auth-oauthlib==1.2.2
+google-auth-httplib2==0.3.0
 
-# ── Telegram bot ──────────────────────────────────────────────────────────
-python-telegram-bot
+# ── Telegram + scheduling ─────────────────────────────────────────────────
+python-telegram-bot==22.6
+APScheduler==3.11.2
 
-# ── Scheduler ─────────────────────────────────────────────────────────────
-apscheduler
-
-# ── Finance / Stocks ──────────────────────────────────────────────────────
-yfinance
-
-# ── Web scraping / URL tools ──────────────────────────────────────────────
-beautifulsoup4
-
-# ── Search ────────────────────────────────────────────────────────────────
-ddgs
-httpx>=0.28.1
-# ── Testing ────────────────────────────────────────────────────────────────
-pytest
-pytest-cov
-
-# ── Retry & Backoff ───────────────────────────────────────────────────────
-tenacity
-# ── Text to speech (optional) ─────────────────────────────────────────────
-pyttsx3
-
-# ── Removed: playwright (replaced by ADB for phone automation) ────────────
+# ── Tools ─────────────────────────────────────────────────────────────────
+yfinance==1.2.0
+beautifulsoup4==4.14.3
+ddgs==9.10.0
+geopy==2.4.1
