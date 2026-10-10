@@ -1,21 +1,27 @@
 """
 benchmark_report.py - Generate a visual HTML report from benchmark results
-Run: python benchmark_report.py
+Run from project root: python scripts/benchmark_report.py
 Opens report in your browser automatically.
 """
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 
 import json
 import os
 import webbrowser
 from datetime import datetime
 
-RESULTS_FILE = "data/benchmark_results.json"
-REPORT_FILE  = "data/benchmark_report.html"
+RESULTS_FILE = "research/results/benchmark_results.json"
+REPORT_FILE  = "research/results/benchmark_report.html"
 
 
 def load_results() -> list:
     if not os.path.exists(RESULTS_FILE):
-        print("No benchmark results found. Run: python benchmark.py first.")
+        print("No benchmark results found. Run: python scripts/benchmark.py first.")
         return []
     with open(RESULTS_FILE) as f:
         return json.load(f)
@@ -193,7 +199,7 @@ def generate_html(results: list) -> str:
     </tr>
   </thead>
   <tbody>
-    {rows_latency if rows_latency else '<tr><td colspan="6" style="text-align:center;color:#475569">No latency data yet. Run: python benchmark.py --latency</td></tr>'}
+    {rows_latency if rows_latency else '<tr><td colspan="6" style="text-align:center;color:#475569">No latency data yet. Run: python scripts/benchmark.py --latency</td></tr>'}
   </tbody>
 </table>
 
@@ -212,7 +218,7 @@ def generate_html(results: list) -> str:
     </tr>
   </thead>
   <tbody>
-    {rows_rag if rows_rag else '<tr><td colspan="7" style="text-align:center;color:#475569">No RAG data yet. Run: python benchmark.py --rag --pdf yourfile.pdf</td></tr>'}
+    {rows_rag if rows_rag else '<tr><td colspan="7" style="text-align:center;color:#475569">No RAG data yet. Run: python scripts/benchmark.py --rag --pdf yourfile.pdf</td></tr>'}
   </tbody>
 </table>
 
@@ -236,7 +242,7 @@ def generate_html(results: list) -> str:
 </table>
 
 <div class="footer">
-  Orchestrix AI Benchmark Tool &nbsp;|&nbsp; Results from data/benchmark_results.json
+  Orchestrix AI Benchmark Tool &nbsp;|&nbsp; Results from research/results/benchmark_results.json
 </div>
 
 </body>
@@ -252,7 +258,7 @@ def main():
 
     html = generate_html(results)
 
-    os.makedirs("data", exist_ok=True)
+    os.makedirs("research/results", exist_ok=True)
     with open(REPORT_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 

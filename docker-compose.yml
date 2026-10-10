@@ -1,0 +1,42 @@
+# docker compose up -d
+# First run: docker compose exec ollama ollama pull llama3:8b-instruct-q4_K_M
+services:
+  ollama:
+    image: ollama/ollama:0.12.3
+    volumes:
+      - ollama:/root/.ollama
+    # Uncomment for NVIDIA GPUs (needs nvidia-container-toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./credentials:/app/credentials
+    depends_on: [ollama]
+    restart: unless-stopped
+
+  api:
+    build: .
+    command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file: .env
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./credentials:/app/credentials
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on: [ollama]
+    profiles: [api]
+
+volumes:
+  ollama:

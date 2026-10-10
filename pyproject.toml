@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orchestrix"
+version = "0.2.0"
+description = "Hybrid local/cloud agentic assistant (Ollama + Gemini) with Google Workspace, phone and PDF tools"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools]
+py-modules = ["main", "telegram_bot"]
+
+[tool.setuptools.packages.find]
+include = ["app*", "config*", "core*", "models*", "rag*", "services*", "tools*"]
+
+[project.scripts]
+orchestrix = "main:main"
+orchestrix-bot = "telegram_bot:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["research", "scripts", "venv"]
+
+[tool.ruff.lint]
+# pyflakes, pycodestyle errors, import order, bugbear, pyupgrade
+select = ["F", "E", "W", "I", "B", "UP"]
+ignore = [
+    "E501",   # long user-facing strings are fine
+    "B008",   # FastAPI Form()/File() defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]

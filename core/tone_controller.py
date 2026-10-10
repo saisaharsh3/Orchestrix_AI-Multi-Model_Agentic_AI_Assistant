@@ -1,5 +1,7 @@
 """
-tone_controller.py - Manage response tone
+tone_controller.py - Response tone presets.
+
+The active tone is stored per user on their Session (core/session.py).
 """
 
 TONE_PROMPTS = {
@@ -10,23 +12,11 @@ TONE_PROMPTS = {
     "simple": "Explain in simple terms that anyone can understand. Avoid jargon.",
 }
 
-class ToneController:
-    def __init__(self):
-        self.current_tone = "formal"
-    
-    def set_tone(self, tone: str) -> str:
-        """Set the response tone."""
-        if tone in TONE_PROMPTS:
-            self.current_tone = tone
-            return f" Tone set to: {tone.upper()}"
-        return f" Unknown tone. Available: {', '.join(TONE_PROMPTS.keys())}"
-    
-    def get_tone_instruction(self) -> str:
-        """Get the instruction to inject into prompts."""
-        return TONE_PROMPTS.get(self.current_tone, "")
-    
-    def get_current_tone(self) -> str:
-        return self.current_tone
 
-# Global instance
-tone_controller = ToneController()
+def is_valid_tone(tone: str) -> bool:
+    return tone in TONE_PROMPTS
+
+
+def tone_instruction(tone: str) -> str:
+    """Instruction to inject into prompts for the given tone ('' if unknown)."""
+    return TONE_PROMPTS.get(tone, "")

@@ -8,6 +8,7 @@ Install: pip install yfinance requests
 """
 
 import requests
+
 try:
     import yfinance as yf
     YFINANCE_AVAILABLE = True
@@ -61,7 +62,7 @@ def get_stock_price(ticker: str) -> str:
 
     ticker = ticker.upper()
 
-    
+
     indian_fixes = {
         "TCS":        "TCS.NS",
         "INFOSYS":    "INFY.NS",

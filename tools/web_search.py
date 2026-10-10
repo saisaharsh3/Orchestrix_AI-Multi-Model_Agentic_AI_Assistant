@@ -1,18 +1,23 @@
 from ddgs import DDGS
 
-def web_search(query: str, max_results: int = 5) -> str:
-    """
-    Perform a DuckDuckGo web search and return summarized results.
-    """
-    results_text = []
+from core.logger import get_logger
 
-    with DDGS() as ddgs:
-        results = ddgs.text(query, max_results=max_results)
+logger = get_logger(__name__)
 
-        for i, r in enumerate(results, start=1):
-            title = r.get("title", "").strip()
-            body = r.get("body", "").strip()
-            if title or body:
-                results_text.append(f"{i}. {title}\n{body}")
 
-    return "\n\n".join(results_text)
+def web_search(query: str, max_results: int = 5) -> list[str]:
+    """DuckDuckGo text search. Returns "title\nsnippet" strings ([] on failure)."""
+    try:
+        with DDGS() as ddgs:
+            results = ddgs.text(query, max_results=max_results) or []
+    except Exception as e:
+        logger.warning(f"Web search failed: {e}")
+        return []
+
+    items = []
+    for r in results:
+        title = (r.get("title") or "").strip()
+        body = (r.get("body") or "").strip()
+        if title or body:
+            items.append(f"{title}\n{body}".strip())
+    return items

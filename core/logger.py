@@ -1,67 +1,70 @@
 """
-core/logger.py - Centralized Logging System
-Provides consistent logging across all modules with file persistence
+core/logger.py - Centralized logging.
+
+Handlers are attached once to the root logger; every module logger
+propagates to it. Console level follows LOG_LEVEL, the daily file log keeps
+DEBUG, and errors also go to a separate file.
+
+Usage:
+    from core.logger import get_logger
+    logger = get_logger(__name__)
 """
 
 import logging
 import os
+import threading
 from datetime import datetime
 from pathlib import Path
 
-# Create logs directory if it doesn't exist
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
+_configured = False
+_lock = threading.Lock()
 
-# Log files
-MAIN_LOG = LOG_DIR / f"orchestrix_{datetime.now().strftime('%Y%m%d')}.log"
-ERROR_LOG = LOG_DIR / f"errors_{datetime.now().strftime('%Y%m%d')}.log"
+_CONSOLE_FORMAT = "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+_FILE_FORMAT = "%(asctime)s | %(name)s | %(levelname)-8s | %(funcName)s:%(lineno)d | %(message)s"
+_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
+def _configure() -> None:
+    global _configured
+    with _lock:
+        if _configured:
+            return
+        # Read the environment directly: config.settings imports this module.
+        level = os.getenv("LOG_LEVEL", "INFO").upper()
+        log_dir = Path(os.getenv("LOG_DIR", "logs"))
+        stamp = datetime.now().strftime("%Y%m%d")
+
+        root = logging.getLogger()
+        root.setLevel(logging.DEBUG)
+
+        console = logging.StreamHandler()
+        console.setLevel(getattr(logging, level, logging.INFO))
+        console.setFormatter(logging.Formatter(_CONSOLE_FORMAT, _DATE_FORMAT))
+        root.addHandler(console)
+
+        try:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            file_fmt = logging.Formatter(_FILE_FORMAT, _DATE_FORMAT)
+
+            main_file = logging.FileHandler(log_dir / f"orchestrix_{stamp}.log", encoding="utf-8")
+            main_file.setLevel(logging.DEBUG)
+            main_file.setFormatter(file_fmt)
+            root.addHandler(main_file)
+
+            error_file = logging.FileHandler(log_dir / f"errors_{stamp}.log", encoding="utf-8")
+            error_file.setLevel(logging.ERROR)
+            error_file.setFormatter(file_fmt)
+            root.addHandler(error_file)
+        except OSError as e:
+            root.warning(f"File logging disabled: {e}")
+
+        # Third-party libraries are noisy at DEBUG.
+        for noisy in ("httpx", "httpcore", "urllib3", "googleapiclient", "apscheduler", "telegram"):
+            logging.getLogger(noisy).setLevel(logging.WARNING)
+
+        _configured = True
 
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Get a configured logger instance.
-    
-    Usage:
-        from core.logger import get_logger
-        logger = get_logger(__name__)
-        logger.info("Operation started")
-        logger.error("Operation failed", exc_info=True)
-    """
-    logger = logging.getLogger(name)
-    
-    # Only configure once
-    if not logger.handlers:
-        logger.setLevel(logging.DEBUG)
-        
-        # Console handler (INFO and above)
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_format = logging.Formatter(
-            '%(asctime)s | %(name)s | %(levelname)s | %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        console_handler.setFormatter(console_format)
-        
-        # File handler (DEBUG and above)
-        file_handler = logging.FileHandler(MAIN_LOG, encoding='utf-8')
-        file_handler.setLevel(logging.DEBUG)
-        file_format = logging.Formatter(
-            '%(asctime)s | %(name)s | %(levelname)-8s | %(funcName)s:%(lineno)d | %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        file_handler.setFormatter(file_format)
-        
-        # Error file handler (ERROR and above only)
-        error_handler = logging.FileHandler(ERROR_LOG, encoding='utf-8')
-        error_handler.setLevel(logging.ERROR)
-        error_handler.setFormatter(file_format)
-        
-        logger.addHandler(console_handler)
-        logger.addHandler(file_handler)
-        logger.addHandler(error_handler)
-    
-    return logger
-
-
-# Convenience logger for quick imports
-logger = get_logger("orchestrix")
+    _configure()
+    return logging.getLogger(name)

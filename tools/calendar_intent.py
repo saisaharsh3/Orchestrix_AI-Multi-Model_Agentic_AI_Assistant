@@ -6,7 +6,6 @@ Detects: add_event, list_events, delete_event, quick_add
 
 import re
 
-
 ADD_TRIGGERS = [
     "add to calendar", "add event", "create event", "schedule",
     "set a meeting", "book a meeting", "remind me", "add meeting",
@@ -41,7 +40,7 @@ def detect_calendar_intent(text: str) -> str | None:
         return "list"
 
     if any(trigger in t for trigger in ADD_TRIGGERS):
-        
+
         has_time = bool(re.search(r"\d{1,2}(?::\d{2})?\s*(?:am|pm)", t))
         has_date = bool(re.search(
             r"tomorrow|today|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next week|\d{1,2}(?:st|nd|rd|th)?",
@@ -49,7 +48,7 @@ def detect_calendar_intent(text: str) -> str | None:
         ))
         return "add" if (has_time or has_date) else "quick_add"
 
-    
+
     if re.search(
         r"(meeting|call|appointment|interview|event|lunch|dinner|standup|sync)\s.*(tomorrow|today|at\s+\d|next\s+\w+day)",
         t
@@ -72,22 +71,22 @@ def extract_event_fields(text: str) -> dict:
 
     t = text.lower()
 
-    
+
     dur_match = re.search(r"for\s+(\d+)\s*(hour|hr|minute|min)", t)
     if dur_match:
         val  = int(dur_match.group(1))
         unit = dur_match.group(2)
         result["duration_hr"] = val if "hour" in unit or "hr" in unit else val / 60
 
-    
+
     loc_match = re.search(r"\bat\s+([A-Za-z][A-Za-z\s]{2,30})(?=\s|$)", text)
     if loc_match:
         loc = loc_match.group(1).strip()
-        
+
         if not re.match(r"\d{1,2}(?::\d{2})?\s*(?:am|pm)", loc, re.IGNORECASE):
             result["location"] = loc
 
-    
+
     title_match = re.search(
         r"(?:schedule|add|create|set|book|remind me (?:about|to)?)\s+(?:a\s+|an\s+|the\s+)?(.+?)(?:\s+(?:tomorrow|today|on|at\s+\d|next|for\s+\d)|$)",
         text,
@@ -96,7 +95,7 @@ def extract_event_fields(text: str) -> dict:
     if title_match:
         result["title"] = title_match.group(1).strip().title()
 
-    
+
     if not result["title"]:
         words = text.split()[:4]
         result["title"] = " ".join(words).title()

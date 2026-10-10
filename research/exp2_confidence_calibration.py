@@ -39,6 +39,28 @@ def expected_calibration_error(confidences, accuracies, n_bins=4):
     
     return ece
 
+LABELS_FILE = "research/calibration_labels.json"
+
+
+def _load_human_labels(path=LABELS_FILE):
+    """
+    Ground-truth labels as [(confidence, 1.0 | 0.0)].
+
+    File format: {"labels": [{"model_confidence": 0.8, "human_label": "correct" | "incorrect",
+                              "auto_label": false}, ...]}
+    Entries with auto_label=true are ignored: they are not ground truth.
+    """
+    if not Path(path).exists():
+        return []
+    with open(path, encoding="utf-8") as f:
+        labels = json.load(f).get("labels", [])
+    return [
+        (float(item["model_confidence"]), 1.0 if item["human_label"] == "correct" else 0.0)
+        for item in labels
+        if not item.get("auto_label") and item.get("human_label") in {"correct", "incorrect"}
+    ]
+
+
 def analyze_confidence_calibration(trace_file="research/logs/orchestration_trace.jsonl"):
     """Analyze confidence score distributions."""
     
@@ -101,18 +123,19 @@ def analyze_confidence_calibration(trace_file="research/logs/orchestration_trace
     print(f"Q1 (25th percentile):{statistics.quantiles(confidences, n=4)[0]:.3f}")
     print(f"Q3 (75th percentile):{statistics.quantiles(confidences, n=4)[2]:.3f}")
     
-    # For proper ECE calculation, we need ground truth accuracies
-    # This is a simplified version assuming confidence correlates with accuracy
-    # In practice, manually label ~100 queries for ground truth
-    
-    # Simulate accuracy based on confidence (ideal case)
-    accuracies = [min(1.0, conf + 0.1) for conf in confidences]  # Add small noise
-    ece = expected_calibration_error(confidences, accuracies)
-    
+    # ECE needs ground truth: was each answer actually correct?
+    # Only human-made labels count (auto-generated labels are skipped).
+    labelled = _load_human_labels()
     print("\nCalibration Metrics:")
     print("-" * 60)
-    print(f"Expected Calibration Error (ECE): {ece:.4f}")
-    print("  (Lower is better; <0.05 is well-calibrated)")
+    if len(labelled) >= 30:
+        ece = expected_calibration_error([c for c, _ in labelled], [a for _, a in labelled])
+        print(f"Expected Calibration Error (ECE): {ece:.4f}  (n={len(labelled)} human labels)")
+        print("  (Lower is better; <0.05 is well-calibrated)")
+    else:
+        ece = None
+        print(f"ECE not computed: {len(labelled)} human labels found, need at least 30.")
+        print(f"  Add labels to {LABELS_FILE} (see _load_human_labels for the format).")
     
     # Threshold analysis
     print("\nThreshold Analysis (proposed decision points):")
@@ -138,8 +161,8 @@ def analyze_confidence_calibration(trace_file="research/logs/orchestration_trace
         },
         "key_findings": {
             "average_confidence": round(statistics.mean(confidences), 3),
-            "well_calibrated": ece < 0.05,
-            "note": "Requires manual ground-truth labels on 100 queries for proper calibration curve"
+            "well_calibrated": None if ece is None else ece < 0.05,
+            "human_labels": len(labelled),
         }
     }
     

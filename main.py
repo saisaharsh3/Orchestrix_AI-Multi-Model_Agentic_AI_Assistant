@@ -1,110 +1,115 @@
-from core.orchestrator import generate_response
-from rag.vector_store import PDFVectorStore
+"""
+main.py - Terminal interface for Orchestrix.
 
-try:
-    from services.voice import listen, speak
-    VOICE_AVAILABLE = True
-except Exception:
-    VOICE_AVAILABLE = False
+Run: python main.py
+"""
+
+from core.orchestrator import respond
+from core.session import sessions
+
+USER_ID = "cli"
+
+HELP = (
+    "\nCommands:\n"
+    "  /api       — switch to API model (Gemini)\n"
+    "  /local     — switch to local model (Ollama)\n"
+    "  /web on|off\n"
+    "  /rag on|off\n"
+    "  /loadpdf <path-or-filename>\n"
+    "  /clearpdf\n"
+    "  /voice     — speak one message (needs requirements-voice.txt)\n"
+    "  exit / quit\n\n"
+    "Type /help for everything the assistant can do."
+)
+
+
+def _load_pdf(session, arg: str) -> None:
+    import shutil
+    from pathlib import Path
+
+    src = Path(arg)
+    if src.exists():
+        dest = session.pdf_dir / src.name
+        if src.resolve() != dest.resolve():
+            shutil.copy(src, dest)
+        name = src.name
+    else:
+        name = arg  # already in the user's PDF folder
+    try:
+        count = session.pdf_store.load_pdf(name)
+        session.use_pdf = True
+        session.recent_pdfs = (session.recent_pdfs + [str(session.pdf_dir / name)])[-2:]
+        print(f" PDF loaded ({count} chunks indexed). RAG is ON.")
+    except Exception as e:
+        print(" PDF load error:", e)
+
+
+def _voice_input() -> str | None:
+    try:
+        from services.voice import listen
+    except Exception as e:
+        print(f" Voice unavailable: {e}")
+        return None
+    return listen() or None
 
 
 def main():
-    model   = "local"
-    use_web = True
-    use_pdf = False
-    use_voice = False
-
-    pdf_store = PDFVectorStore()
-
-    print("=== Orchestrix AI (Terminal Mode) ===\n")
+    session = sessions.get(USER_ID)
+    print("=== Orchestrix AI (Terminal Mode) ===  (type 'commands' for options)\n")
 
     while True:
         print(
-            f"\n[Model: {model.upper()} | "
-            f"Web: {'ON' if use_web else 'OFF'} | "
-            f"PDF: {'ON' if use_pdf else 'OFF'} | "
-            f"Voice: {'ON' if use_voice else 'OFF'}]"
+            f"\n[Model: {session.model_type.upper()} | "
+            f"Web: {'ON' if session.use_web else 'OFF'} | "
+            f"PDF: {'ON' if session.use_pdf else 'OFF'}]"
         )
-
-        user = input("You: ").strip()
+        try:
+            user = input("You: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\n Goodbye!")
+            break
         if not user:
             continue
+        lower = user.lower()
 
-        user_lower = user.lower()
-
-        if user_lower in {"exit", "quit"}:
+        if lower in {"exit", "quit"}:
             print(" Goodbye!")
             break
-
-        if user == "/api":
-            model = "api"
-            print(" Switched to API model")
+        if lower == "commands":
+            print(HELP)
             continue
-
-        if user == "/local":
-            model = "local"
-            print(" Switched to LOCAL model")
+        if lower in {"/api", "/local"}:
+            session.model_type = lower[1:]
+            print(f" Switched to {session.model_type.upper()} model")
             continue
-
-        if user.startswith("/web"):
-            use_web = "on" in user_lower
-            print(f" Web search {'enabled' if use_web else 'disabled'}")
+        if lower.startswith("/web"):
+            session.use_web = lower.endswith("on")
+            print(f" Web search {'enabled' if session.use_web else 'disabled'}")
             continue
-
-        if user.startswith("/rag"):
-            use_pdf = "on" in user_lower
-            print(f" PDF RAG {'enabled' if use_pdf else 'disabled'}")
+        if lower.startswith("/rag"):
+            session.use_pdf = lower.endswith("on")
+            print(f" PDF RAG {'enabled' if session.use_pdf else 'disabled'}")
             continue
-
-        if user.startswith("/loadpdf"):
-            filename = user.replace("/loadpdf", "").strip()
-            try:
-                count = pdf_store.load_pdf(filename)
-                print(f" PDF loaded ({count} chunks indexed)")
-            except Exception as e:
-                print(" PDF load error:", e)
+        if lower.startswith("/loadpdf"):
+            _load_pdf(session, user[len("/loadpdf"):].strip())
             continue
-
-        if user == "/clearpdf":
-            # FIX: use proper .clear() method instead of accessing internals
-            pdf_store.clear()
+        if lower == "/clearpdf":
+            session.pdf_store.clear()
+            session.recent_pdfs = []
+            session.use_pdf = False
             print(" PDF memory cleared")
             continue
-
-        if user == "/help":
-            print(
-                "\n Commands:\n"
-                "  /api       — switch to API model\n"
-                "  /local     — switch to local model\n"
-                "  /web on|off\n"
-                "  /rag on|off\n"
-                "  /loadpdf <filename>\n"
-                "  /clearpdf\n"
-                "  exit / quit\n\n"
-                " Phone (ADB required):\n"
-                "  open youtube, search youtube for <query>\n"
-                "  open spotify, play <song> on spotify\n"
-                "  call <number>, navigate to <place>\n"
-                "  set alarm for HH:MM, set timer for Xm\n"
-                "  volume up/down, set volume to X%\n"
-                "  set brightness to X%\n"
-                "  open camera, take screenshot\n"
-                "  connect phone <ip>\n"
-            )
-            continue
+        if lower == "/voice":
+            user = _voice_input()
+            if not user:
+                continue
+            print(f"You (voice): {user}")
 
         print("\nAssistant is thinking...\n")
-        try:
-            response = generate_response(
-                user_input=user,
-                model_type=model,
-                pdf_store=pdf_store,   # always pass store; orchestrator checks use_pdf flag
-                use_web=use_web,
-                use_pdf=use_pdf,       # FIX: was never passed before
-            )
-            print("Assistant:", response)
-        except Exception as e:
-            print(" Error:", e)
+        reply = respond(user, user_id=USER_ID)
+        print("Assistant:", reply.text)
+        for path in reply.files:
+            print(f" File saved: {path}")
 
 
 if __name__ == "__main__":

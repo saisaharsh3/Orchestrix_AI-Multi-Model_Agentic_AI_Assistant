@@ -8,15 +8,12 @@ import urllib.parse
 import webbrowser
 
 from tools.web_automation.adb_manager import (
-    shell,
-    launch_intent,
-    wake_screen,
-    set_volume,
-    set_brightness,
-    get_volume,
-    get_brightness,
     is_phone_connected,
-    ADBResult,
+    launch_intent,
+    set_brightness,
+    set_volume,
+    shell,
+    wake_screen,
 )
 
 
@@ -33,7 +30,8 @@ def _require_phone() -> str | None:
 
 # ── Phone calls ───────────────────────────────────────────────────────────
 def make_call(number: str) -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     r = launch_intent(action="android.intent.action.CALL", data_uri=f"tel:{number}")
     return f"📞 Calling {number}..." if r.ok else f"❌ Call failed: {r.error}"
@@ -41,7 +39,8 @@ def make_call(number: str) -> str:
 
 def dial_number(number: str) -> str:
     """Open dialer without auto-calling."""
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     r = launch_intent(action="android.intent.action.DIAL", data_uri=f"tel:{number}")
     return f"📱 Dialer opened for {number}." if r.ok else f"❌ {r.error}"
@@ -49,7 +48,8 @@ def dial_number(number: str) -> str:
 
 # ── WhatsApp ──────────────────────────────────────────────────────────────
 def open_whatsapp() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     r = shell("monkey -p com.whatsapp -c android.intent.category.LAUNCHER 1")
     return "💬 WhatsApp opened." if r.ok else f"❌ {r.error}"
@@ -60,7 +60,8 @@ def whatsapp_message(number: str, message: str) -> str:
     Open WhatsApp chat with a pre-filled message.
     number: international format without '+', e.g. '919876543210'
     """
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     encoded = urllib.parse.quote(message)
     url = f"https://api.whatsapp.com/send?phone={number}&text={encoded}"
@@ -74,7 +75,7 @@ def whatsapp_message(number: str, message: str) -> str:
 
 # ── Spotify ───────────────────────────────────────────────────────────────
 def open_spotify() -> str:
-    if err := _require_phone():
+    if _require_phone():
         url = "https://open.spotify.com"
         webbrowser.open(url)
         return f"📵 No phone connected — opened on laptop browser.\n🔗 {url}"
@@ -85,7 +86,7 @@ def open_spotify() -> str:
 
 def spotify_search(query: str) -> str:
     encoded = urllib.parse.quote(query)
-    if err := _require_phone():
+    if _require_phone():
         url = f"https://open.spotify.com/search/{encoded}"
         webbrowser.open(url)
         return f"📵 No phone connected — opened on laptop browser.\n🔗 {url}"
@@ -100,30 +101,33 @@ def spotify_search(query: str) -> str:
         action="android.intent.action.VIEW",
         data_uri=f"https://open.spotify.com/search/{encoded}",
     )
-    return f"🎵 Spotify search opened." if r2.ok else f"❌ {r2.error}"
+    return "🎵 Spotify search opened." if r2.ok else f"❌ {r2.error}"
 
 
 def play_pause_media() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     r = shell("input keyevent KEYCODE_MEDIA_PLAY_PAUSE")
     return "⏯️ Play/Pause toggled." if r.ok else f"❌ {r.error}"
 
 
 def next_track() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     shell("input keyevent KEYCODE_MEDIA_NEXT")
     return "⏭️ Next track."
 
 
 def previous_track() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     shell("input keyevent KEYCODE_MEDIA_PREVIOUS")
     return "⏮️ Previous track."
 
 
 # ── Google Maps ───────────────────────────────────────────────────────────
 def open_maps() -> str:
-    if err := _require_phone():
+    if _require_phone():
         url = "https://maps.google.com"
         webbrowser.open(url)
         return f"📵 No phone connected — opened on laptop browser.\n🔗 {url}"
@@ -134,7 +138,7 @@ def open_maps() -> str:
 
 def navigate_to(destination: str) -> str:
     encoded = urllib.parse.quote(destination)
-    if err := _require_phone():
+    if _require_phone():
         url = f"https://maps.google.com/?q={encoded}"
         webbrowser.open(url)
         return f"📵 No phone connected — opened on laptop browser.\n🔗 {url}"
@@ -155,7 +159,7 @@ def navigate_to(destination: str) -> str:
 
 def search_maps(query: str) -> str:
     encoded = urllib.parse.quote(query)
-    if err := _require_phone():
+    if _require_phone():
         url = f"https://maps.google.com/?q={encoded}"
         webbrowser.open(url)
         return f"📵 No phone connected — opened on laptop browser.\n🔗 {url}"
@@ -169,7 +173,8 @@ def search_maps(query: str) -> str:
 
 # ── Alarm & Timer ─────────────────────────────────────────────────────────
 def set_alarm(hour: int, minute: int, message: str = "") -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     cmd = (
         f"am start -a android.intent.action.SET_ALARM "
@@ -185,7 +190,8 @@ def set_alarm(hour: int, minute: int, message: str = "") -> str:
 
 
 def set_timer(seconds: int, message: str = "") -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     cmd = (
         f"am start -a android.intent.action.SET_TIMER "
@@ -202,34 +208,39 @@ def set_timer(seconds: int, message: str = "") -> str:
 
 # ── Volume ────────────────────────────────────────────────────────────────
 def volume_up(steps: int = 1) -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     for _ in range(steps):
         shell("input keyevent KEYCODE_VOLUME_UP")
     return f"🔊 Volume up ({steps} step{'s' if steps > 1 else ''})."
 
 
 def volume_down(steps: int = 1) -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     for _ in range(steps):
         shell("input keyevent KEYCODE_VOLUME_DOWN")
     return f"🔉 Volume down ({steps} step{'s' if steps > 1 else ''})."
 
 
 def set_volume_percent(percent: int) -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     r = set_volume(percent)
     return f"🔊 Volume set to {percent}%." if r.ok else f"❌ {r.error}"
 
 
 def mute_phone() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     shell("input keyevent KEYCODE_VOLUME_MUTE")
     return "🔇 Phone muted."
 
 
 # ── Brightness ────────────────────────────────────────────────────────────
 def set_brightness_percent(percent: int) -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     level = int(percent / 100 * 255)
     r = set_brightness(level)
     return f"☀️ Brightness set to {percent}%." if r.ok else f"❌ {r.error}"
@@ -237,7 +248,8 @@ def set_brightness_percent(percent: int) -> str:
 
 # ── Camera ────────────────────────────────────────────────────────────────
 def open_camera() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     r = launch_intent(
         action="android.media.action.STILL_IMAGE_CAMERA",
@@ -246,7 +258,8 @@ def open_camera() -> str:
 
 
 def take_screenshot() -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     r = shell("screencap -p /sdcard/screenshot.png")
     return "📸 Screenshot saved to /sdcard/screenshot.png." if r.ok else f"❌ {r.error}"
 
@@ -273,7 +286,8 @@ APP_PACKAGES = {
 
 
 def open_app(app_name: str) -> str:
-    if err := _require_phone(): return err
+    if err := _require_phone():
+        return err
     wake_screen()
     pkg = APP_PACKAGES.get(app_name.lower())
     if not pkg:

@@ -61,7 +61,7 @@ def detect_email_intent(text: str) -> str | None:
     if any(trigger in t for trigger in SEND_TRIGGERS):
         return "send"
 
-    
+
     if re.search(r"email\s+\w+\s+about", t):
         return "send"
 
@@ -85,36 +85,38 @@ def extract_email_fields(text: str) -> dict:
     """
     # Check if AI generation requested before processing
     use_ai = should_use_ai_generation(text)
-    
+
     # Remove AI keywords from text to avoid interfering with extraction
+    # (case-insensitive, so names and body text keep their capitalisation)
     clean_text = text
     for trigger in AI_GENERATION_TRIGGERS:
-        clean_text = clean_text.lower().replace(trigger, " ")
-    
+        clean_text = re.sub(re.escape(trigger), " ", clean_text, flags=re.IGNORECASE)
+    clean_text = re.sub(r"\s{2,}", " ", clean_text).strip()
+
     result = {
         "to": None,
         "subject": None,
         "body": None,
-        "tone": "professional",   
+        "tone": "professional",
         "use_ai": use_ai,
         "missing": [],
     }
 
-    
+
     match = re.search(EMAIL_REGEX, clean_text)
     if match:
         result["to"] = match.group()
 
-    
+
     if not result["to"]:
         name_match = re.search(
             r"(?:email|mail|send\s+(?:an?\s+)?(?:email|mail))\s+(?:to\s+)?([A-Z][a-z]+)",
             clean_text,
         )
         if name_match:
-            result["to"] = name_match.group(1)  
+            result["to"] = name_match.group(1)
 
-    
+
     patterns_subject = [
         r"(?:subject[:\s]+)(.+?)(?:\s+(?:saying|body|message|and\s+say)|$)",
         r"(?:about\s+)(.+?)(?:\s+(?:saying|body|message|telling|and\s+say)|$)",
@@ -127,7 +129,7 @@ def extract_email_fields(text: str) -> dict:
             result["subject"] = m.group(1).strip().title()
             break
 
-    
+
     patterns_body = [
         r"(?:saying|say|message|body|that\s+says?)[:\s]+(.+?)(?:\s+(?:subject|about|to\s+\S+@)|$)",
         r"(?:tell\s+(?:him|her|them)\s+)(.+?)$",
@@ -139,7 +141,7 @@ def extract_email_fields(text: str) -> dict:
             result["body"] = m.group(1).strip()
             break
 
-    
+
     t = clean_text.lower()
     if any(w in t for w in ["formal", "professional", "official"]):
         result["tone"] = "formal"
@@ -150,7 +152,7 @@ def extract_email_fields(text: str) -> dict:
     elif any(w in t for w in ["polite", "kind", "gentle"]):
         result["tone"] = "polite"
 
-    
+
     if not result["to"] or "@" not in str(result["to"]):
         result["missing"].append("recipient email address")
     if not result["body"] and not result["subject"]:
@@ -180,6 +182,6 @@ Subject hint: {subject or 'N/A'}
 User instruction: {raw_content}
 Tone: {instruction}
 
-Write a complete, ready-to-send email body. No subject line, no placeholders. 
+Write a complete, ready-to-send email body. No subject line, no placeholders.
 Just the body text starting with a greeting and ending with a sign-off.
 """.strip()

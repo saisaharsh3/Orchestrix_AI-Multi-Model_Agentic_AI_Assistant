@@ -1,160 +1,64 @@
-# Virtual Environment
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
 venv/
 env/
-ENV/
-.venv
-env.bak/
 
-# Environment & Configuration
+# ── Tooling ───────────────────────────────────────────────────────────────
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── Secrets (never commit) ────────────────────────────────────────────────
 .env
-.env.local
-.env.*.local
-.env.production
-.env.development
-
-# Credentials & Sensitive Files
+.env.*
+!.env.example
 credentials/
 credentials.json
 token.json
 *.key
 *.pem
-*.secret
 
-# User Data & Configuration Files (IMPORTANT - DO NOT COMMIT)
-config/user_preferences.json
-config/benchmark_results.json
-config/benchmark_report.html
-config/calibration_labels.json
-config/reminders.json
-config/tracked_prices.json
-config/user_locations.json
-config/chat_history.json
-
-# Generated Logs & Runtime Data
-logs/
+# ── Runtime / user data ───────────────────────────────────────────────────
+# Everything the assistant writes about its users lives here.
 data/
 memory/
+logs/
 reports/
+pdfs/
+config/*.json
 *.log
 
-# RAG Vector Store & Index Files
+# ── RAG index artifacts ───────────────────────────────────────────────────
 rag/chunks.json
-rag/index.faiss
-rag/pdf.index
-rag/pdf_meta.pkl
+*.faiss
+*.index
+*.pkl
 
-# Research & Tracing Artifacts
+# ── Research run output (curated results go in research/results/) ────────
 research/logs/
 research/graphs/
 research/results_*.json
-research/orchestration_trace.jsonl
-orchestration_trace.jsonl
+*.jsonl
 
-# Test & Debug Files (Development Only)
-test_*.py
-debug_*.py
-*_test.py
-*_debug.py
-
-# Calibration & Benchmark Setup Files
-auto_label_calibration.py
-calibration_ui.py
-benchmark.py
-benchmark_report.py
-quick_auto_label.py
-calendar_diagnostic.py
-find_all_calendars.py
-
-# Development & Temporary Markdown Files (NOT for GitHub - Dev Notes Only)
-TASKS_FIX_COMPLETE.md
-SOLO_SPRINT_TODAY.md
-TASK_FEATURE_QUICK_START.md
-TASK_FEATURE_FIX_COMPLETE.md
-TASK_ISSUES_DIAGNOSIS_FIXES.md
-RESEARCH_IMPLEMENTATION_SUMMARY.md
-QUICK_START_INTEGRATION.md
-QUICK_REFERENCE.md
-CALENDAR_FIX_EXPLANATION.md
-EMAIL_AI_GENERATION_DOCS.md
-EMAIL_REGENERATION_GUIDE.md
-EMAIL_REGENERATION_WITH_CONTEXT.md
-IMPLEMENTATION_SUMMARY.md
-IMPLEMENTATION_COMPLETE.md
-PRODUCTION_SPRINT_IMPLEMENTATION_GUIDE.md
-MEMORY_SYSTEM_UPDATE.md
-ENHANCEMENT_ROADMAP.md
-EVALUATION_METHODOLOGY.md
-
-# Temporary Voice & Media Files
-temp_voice_*.ogg
-temp_audio_*.ogg
+# ── Media / temp ──────────────────────────────────────────────────────────
 *.ogg
 *.mp3
 *.wav
-
-# PDF & Document Files
-pdfs/
 *.pdf
 
-# RAG & Index Artifacts (General)
-*.faiss
-*.pkl
-pdf.index
-*.index
-chunks.json
-
-# Python Cache & Build
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Testing & Coverage
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.hypothesis/
-.nox/
-
-# IDE & Editor
+# ── Editors / OS ──────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
-*.swo
 *~
 .DS_Store
 Thumbs.db
-*.sublime-project
-*.sublime-workspace
-*.code-workspace
-
-# OS Files
-.DS_Store
-.AppleDouble
-.LSOverride
-ehthumbs.db
-
-# Directories (exact matches)
-pdfs/
-memory/
-credentials/
+research/summary.json
