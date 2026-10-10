@@ -49,10 +49,15 @@ Latency/RAG micro-benchmarks: `python scripts/benchmark.py` → [results/benchma
 Counts traces per stage. Stage 1 is the only LLM-free route; stage 3 still uses
 an LLM to write the RAG answer.
 
-**Last measured** (210 traces from March–April 2026, recorded before every path
-was instrumented, so only stages 1 and 4 appear): stage 1 = 8.1%, stage 4 = 91.9%;
-median latency 1.2 s (stage 1) vs 9.0 s (stage 4). Re-run with the current
-tracing for a full distribution.
+**Measured so far** (recorded before every path was instrumented, so only
+stages 1 and 4 appear):
+
+| Run | Requests | Stage 1 (no LLM) | Stage 4 (LLM) |
+|---|---|---|---|
+| March 2026 (figure in the main README) | 39 | 12.8% | 87.2% |
+| March–April 2026, full log | 210 | 8.1% | 91.9% (median 9.0 s vs 1.2 s) |
+
+Re-run with the current tracing for a full distribution.
 
 ### 2 · Confidence calibration
 *Do handler confidence scores match how often the answer is right?*
