@@ -72,9 +72,10 @@ def handle_fallback(req: Request) -> Reply:
         prompt = build_general_prompt(query, context, req.model_type)
 
     if req.model_type == "api" and settings.ENABLE_LLM_TOOL_ROUTING and settings.GEMINI_API_KEY:
+        from core.agent.tools import ToolContext
         from core.tool_router import route_or_answer
         try:
-            text, tool = route_or_answer(prompt)
+            text, tool = route_or_answer(prompt, ToolContext(user_id=req.user_id, session=req.session))
             if text:
                 return Reply(text, stage=STAGE_LLM_ROUTING if tool else STAGE_FALLBACK, confidence=0.3)
         except LLMError as e:

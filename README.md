@@ -28,6 +28,11 @@ HTTP API.
 
 ## Highlights
 
+- **Agent mode.** `/agent <goal>` plans and chains several steps — look up the
+  forecast, check your calendar, draft an email — then shows the plan and
+  waits for one YES before anything is sent or created.
+- **MCP server.** Claude Desktop, Claude Code, Cursor or any other MCP client
+  can use Orchestrix's tools, including search over your on-device PDF index.
 - **Deterministic routing first.** Pattern-based handlers cover common
   requests (tasks, calendar, email, weather, reminders, phone control)
   without calling a model to decide what to do.
@@ -49,6 +54,7 @@ HTTP API.
 ```mermaid
 flowchart LR
     CLI[main.py] --> O
+    MCP[mcp_server.py<br/>MCP clients] --> REG
     TG[telegram_bot.py<br/>allow-listed users] --> O
     API[app/api.py<br/>token auth] --> O
     O[core/orchestrator.py<br/>per-user session + trace] --> P
@@ -67,6 +73,9 @@ flowchart LR
     L -->|local| OL[Ollama<br/>Llama 3 8B q4_K_M]
     L -->|api| GM[Gemini]
     O --> DB[(SQLite<br/>prefs · memory · reminders)]
+    PEND -. /agent .-> AG[core/agent<br/>plan → read → queue writes]
+    AG --> REG[tool registry<br/>read · write]
+    REG --> T
 ```
 
 Each request passes through `core/handlers/` in order. The stage that answered
@@ -79,6 +88,7 @@ it is logged to `research/logs/orchestration_trace.jsonl`:
 | 2 | Gemini picked a read-only tool | Gemini (API mode only) |
 | 3 | PDF RAG / Wikipedia | session model for RAG answers |
 | 4 | general answer, optionally web-grounded | session model |
+| 5 | `/agent` multi-step run | session model (planner) |
 
 ## Quick start
 
@@ -130,6 +140,7 @@ later revoked, the consent flow runs again automatically.
 ```bash
 python main.py                                   # terminal
 python telegram_bot.py                           # Telegram bot
+python mcp_server.py                             # MCP server (for MCP clients)
 uvicorn app.api:app --host 127.0.0.1 --port 8000 # HTTP API
 ```
 
@@ -151,6 +162,73 @@ docker compose --profile api up -d api   # optional HTTP API on 127.0.0.1:8000
 Authorise Google once on the host (so `credentials/token.json` exists) before
 running in Docker; the consent flow needs a browser.
 
+## Agent mode
+
+Ordinary messages trigger at most one action. `/agent` hands a whole goal to
+a planner that can use 22 tools in sequence:
+
+```
+/agent check the weather in Goa tomorrow; if it's sunny add a beach day at 10am
+       to my calendar and email ravi@example.com about it
+```
+
+```
+🤖 Goal: check the weather in Goa tomorrow; if it's sunny …
+Looked up:
+1. get_forecast(days=2, city=Goa)
+   → Forecast for Goa, IN: … clear sky …
+
+Waiting for your approval:
+1. create_calendar_event   title: Beach Day · start: 2026-10-11T10:00
+2. send_email              to: ravi@example.com · subject: Beach Day in Goa tomorrow · body: …
+Reply YES to run these, or NO to cancel.
+```
+
+- **Read tools** (weather, prices, inbox, calendar, Drive, web, Wikipedia,
+  your PDFs, conversation history) run immediately.
+- **Write tools** (send email, save draft, create event, add task, phone
+  alarm) are only queued; nothing changes until you reply YES.
+- **API mode** uses Gemini's native function calling. **Local mode** uses a
+  JSON-constrained planner on the local model, so the whole run stays on
+  your machine.
+- The plan is capped at `AGENT_MAX_STEPS` planner turns; repeated calls are
+  de-duplicated; a failing tool is reported back to the planner so it can
+  recover.
+
+Implementation: [core/agent/](core/agent/) (tool registry, loop, planners)
+and [core/handlers/agent.py](core/handlers/agent.py).
+
+## Use Orchestrix from Claude Desktop, Cursor, … (MCP)
+
+[mcp_server.py](mcp_server.py) exposes the same tool registry over the
+[Model Context Protocol](https://modelcontextprotocol.io). Any MCP client can
+then search your local PDFs, read your calendar and inbox, or check prices —
+through your own assistant, with your data staying on your machine except
+for what that client's model sees in the results.
+
+Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "orchestrix": {
+      "command": "C:/path/to/Orchestrix/venv/Scripts/python.exe",
+      "args": ["C:/path/to/Orchestrix/mcp_server.py"]
+    }
+  }
+}
+```
+
+Claude Code: `claude mcp add orchestrix -- python /path/to/Orchestrix/mcp_server.py`
+
+- Only the 17 read-only tools are exposed by default. Set
+  `ORCHESTRIX_MCP_ALLOW_WRITE=true` to also expose email, calendar, task and
+  phone tools plus `ask_orchestrix` (the full assistant).
+- The server acts as `ORCHESTRIX_MCP_USER` (default `TELEGRAM_CHAT_ID`), so it
+  sees the PDFs you uploaded through the bot.
+- If that user has documents, the embedding model loads before the server
+  starts listening (~10 s), so searches answer in about a second.
+
 ## What you can say
 
 | Area | Examples |
@@ -162,6 +240,7 @@ running in Docker; the consent flow needs a browser.
 | PDFs | send a PDF, then ask about it · `compare the two PDFs` · `generate a summary report` |
 | Maps | `find restaurants nearby` · `directions to the airport` (share your location first) |
 | Phone (ADB) | `open youtube` · `play lofi on spotify` · `set alarm for 7:30am` · `set volume to 40%` |
+| Multi-step | `/agent <goal>` — plans, looks things up, then asks before acting |
 | Controls | `/api` · `/local` · `/web on` · `/rag on` · `/stealth_mode on` · `/status` |
 
 ## Results
@@ -202,7 +281,7 @@ every experiment, and what each one does and does not show, is in
 | Local inference | Ollama (llama.cpp, GGUF), Llama 3 8B Instruct, q4_K_M |
 | Cloud inference | Google Gemini (`gemini-flash-latest`, configurable) |
 | Retrieval | FAISS `IndexFlatIP`, sentence-transformers `all-MiniLM-L6-v2` (384-d), pypdf, Tesseract OCR |
-| Interfaces | python-telegram-bot, FastAPI, terminal |
+| Interfaces | python-telegram-bot, FastAPI, terminal, MCP (stdio) |
 | Integrations | Google APIs (Gmail, Calendar, Tasks, Drive), ADB, Playwright, OpenStreetMap, yfinance, DuckDuckGo |
 | Storage | SQLite |
 | Voice | OpenAI Whisper (local), pyttsx3 |
@@ -211,6 +290,7 @@ every experiment, and what each one does and does not show, is in
 
 ```
 app/            HTTP API (FastAPI)
+mcp_server.py   MCP server (stdio)
 config/         settings (single place that reads .env) and user preferences
 core/
   orchestrator.py   request entry point, tracing
@@ -218,7 +298,8 @@ core/
   session.py        per-user state (pending actions, toggles, PDFs)
   storage.py        SQLite persistence
   model_manager.py  local/cloud generation with the privacy rule
-  tool_router.py    Gemini function calling over read-only tools
+  agent/            tool registry, agent loop, Gemini + local planners
+  tool_router.py    single-step Gemini function calling over read-only tools
 models/         Ollama and Gemini clients
 rag/            FAISS vector store
 tools/          integrations (Google, phone/ADB, maps, finance, URLs, search)
@@ -241,7 +322,9 @@ CI runs lint and tests on Python 3.10 and 3.12.
 ## Limitations
 
 - Intent detection is pattern-based; unusual phrasings fall through to the
-  LLM (or to Gemini tool routing in API mode).
+  LLM (or to Gemini tool routing in API mode). `/agent` is the flexible path.
+- The local planner (Llama 3 8B) is less reliable at multi-step tool use than
+  Gemini; `/api` gives better agent runs when privacy allows.
 - Stealth Mode is a partial defence, and the stylometry result comes from
   synthetic queries, not real users.
 - Reminders and the daily briefing are Telegram-only.

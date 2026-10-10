@@ -38,7 +38,7 @@ def _get_client() -> ollama.Client:
     return _client
 
 
-def _chat(prompt: str, system: str, options: dict) -> str:
+def _chat(prompt: str, system: str, options: dict, fmt: str | None = None) -> str:
     res = _get_client().chat(
         model=settings.OLLAMA_MODEL,
         messages=[
@@ -46,6 +46,7 @@ def _chat(prompt: str, system: str, options: dict) -> str:
             {"role": "user", "content": prompt},
         ],
         options=options,
+        format=fmt,
     )
     text = res["message"]["content"].strip()
     if not text:
@@ -53,7 +54,7 @@ def _chat(prompt: str, system: str, options: dict) -> str:
     return text
 
 
-def _generate(prompt: str, system: str, temperature: float, top_p: float) -> str:
+def _generate(prompt: str, system: str, temperature: float, top_p: float, fmt: str | None = None) -> str:
     options = {
         "temperature": temperature,
         "top_p": top_p,
@@ -61,7 +62,7 @@ def _generate(prompt: str, system: str, temperature: float, top_p: float) -> str
         "num_gpu": settings.OLLAMA_NUM_GPU,
     }
     try:
-        return _chat(prompt, system, options)
+        return _chat(prompt, system, options, fmt)
     except LLMError:
         raise
     except Exception as e:
@@ -69,7 +70,7 @@ def _generate(prompt: str, system: str, temperature: float, top_p: float) -> str
             raise LLMError(f"Local model error ({settings.OLLAMA_MODEL} at {settings.OLLAMA_HOST}): {e}") from e
         logger.warning(f"GPU inference failed ({e}); retrying on CPU")
         try:
-            return _chat(prompt, system, {"temperature": temperature, "num_gpu": 0})
+            return _chat(prompt, system, {"temperature": temperature, "num_gpu": 0}, fmt)
         except Exception as cpu_error:
             raise LLMError(f"Local model failed on GPU and CPU: {cpu_error}") from cpu_error
 
@@ -80,3 +81,8 @@ def local_generate(prompt: str) -> str:
 
 def local_generate_rag(prompt: str) -> str:
     return _generate(prompt, RAG_SYSTEM_PROMPT, temperature=0.1, top_p=0.8)
+
+
+def local_generate_json(prompt: str, system: str) -> str:
+    """Generation constrained to a single JSON value (used by the agent planner)."""
+    return _generate(prompt, system, temperature=0.1, top_p=0.9, fmt="json")

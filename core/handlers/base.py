@@ -18,6 +18,7 @@ STAGE_PATTERN = 1     # deterministic pattern-matched handlers
 STAGE_LLM_ROUTING = 2 # Gemini function calling picked a tool
 STAGE_RETRIEVAL = 3   # RAG / wiki lookups
 STAGE_FALLBACK = 4    # general LLM answer
+STAGE_AGENT = 5       # multi-step agent run (/agent)
 
 
 @dataclass

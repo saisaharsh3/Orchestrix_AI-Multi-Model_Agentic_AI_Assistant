@@ -32,6 +32,9 @@ google-auth-httplib2==0.3.0
 python-telegram-bot==22.6
 APScheduler==3.11.2
 
+# ── MCP server (mcp_server.py) ─────────────────────────────────────────────
+mcp==1.28.1
+
 # ── Tools ─────────────────────────────────────────────────────────────────
 yfinance==1.2.0
 beautifulsoup4==4.14.3

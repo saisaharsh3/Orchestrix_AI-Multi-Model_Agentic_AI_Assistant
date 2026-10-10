@@ -15,7 +15,7 @@ dynamic = ["dependencies"]
 dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools]
-py-modules = ["main", "telegram_bot"]
+py-modules = ["main", "telegram_bot", "mcp_server"]
 
 [tool.setuptools.packages.find]
 include = ["app*", "config*", "core*", "models*", "rag*", "services*", "tools*"]
@@ -23,6 +23,7 @@ include = ["app*", "config*", "core*", "models*", "rag*", "services*", "tools*"]
 [project.scripts]
 orchestrix = "main:main"
 orchestrix-bot = "telegram_bot:main"
+orchestrix-mcp = "mcp_server:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

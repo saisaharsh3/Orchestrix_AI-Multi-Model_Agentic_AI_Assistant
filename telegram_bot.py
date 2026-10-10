@@ -124,6 +124,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/status     - current settings\n"
         "/reminders  - list reminders\n"
         "/stealth_mode on|off - stylometric masking for cloud queries\n"
+        "/agent <goal> - multi-step agent (asks before acting)\n"
         "/share_location - share your location for maps\n\n"
         "What you can say:\n"
         "- weather in Mumbai\n"
@@ -289,6 +290,11 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @restricted
+async def agent_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _answer(update, context, "/agent " + " ".join(context.args or []))
+
+
+@restricted
 async def share_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await _answer(update, context, "/share_location")
 
@@ -370,6 +376,7 @@ def main():
     app.add_handler(CommandHandler("reminders", reminders_cmd))
     app.add_handler(CommandHandler("stealth_mode", stealth_mode_cmd))
     app.add_handler(CommandHandler("share_location", share_location))
+    app.add_handler(CommandHandler("agent", agent_cmd))
 
     app.add_handler(MessageHandler(filters.Document.PDF, handle_pdf))
     app.add_handler(MessageHandler(filters.VOICE, handle_voice))
