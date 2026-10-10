@@ -54,7 +54,8 @@ def analyze_orchestration_efficiency(trace_file="research/logs/orchestration_tra
         1: "Stage 1: Pattern-matched handlers",
         2: "Stage 2: Gemini tool routing",
         3: "Stage 3: Retrieval (PDF RAG / Wikipedia)",
-        4: "Stage 4: LLM fallback answer"
+        4: "Stage 4: LLM fallback answer",
+        5: "Stage 5: Multi-step agent (/agent)"
     }
     
     for stage in sorted(stage_counts.keys()):

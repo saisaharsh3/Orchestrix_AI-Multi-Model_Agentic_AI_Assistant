@@ -49,9 +49,11 @@ class Session:
     calendar: dict = field(default_factory=_empty_calendar)
     booking: dict = field(default_factory=_empty_booking)
     recent_pdfs: list[str] = field(default_factory=list)
+    agent_pending: list = field(default_factory=list)  # approved-on-YES agent actions
     _pdf_store: Any = None
     # Serialises requests from the same user (the bot handles updates concurrently).
     lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
+    _pdf_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def __post_init__(self):
         self.memory = ConversationMemory(self.user_id)
@@ -59,15 +61,23 @@ class Session:
     @property
     def pdf_store(self):
         """Created lazily: loading the embedding model is slow."""
-        if self._pdf_store is None:
-            from rag.vector_store import PDFVectorStore
-            base = settings.DATA_DIR / "rag" / _safe(self.user_id)
-            self._pdf_store = PDFVectorStore(
-                pdf_dir=str(self.pdf_dir),
-                index_path=str(base / "index.faiss"),
-                meta_path=str(base / "chunks.json"),
-            )
-        return self._pdf_store
+        with self._pdf_lock:  # a warm-up thread and a request may both get here first
+            if self._pdf_store is None:
+                from rag.vector_store import PDFVectorStore
+                base = settings.DATA_DIR / "rag" / _safe(self.user_id)
+                self._pdf_store = PDFVectorStore(
+                    pdf_dir=str(self.pdf_dir),
+                    index_path=str(base / "index.faiss"),
+                    meta_path=str(base / "chunks.json"),
+                )
+            return self._pdf_store
+
+    @property
+    def has_documents(self) -> bool:
+        """True if this user has indexed PDFs, without loading the embedding model."""
+        if self._pdf_store is not None:
+            return bool(self._pdf_store.text_chunks)
+        return (settings.DATA_DIR / "rag" / _safe(self.user_id) / "chunks.json").exists()
 
     @pdf_store.setter
     def pdf_store(self, store) -> None:

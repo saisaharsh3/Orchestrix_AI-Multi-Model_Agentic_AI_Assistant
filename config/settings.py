@@ -76,6 +76,11 @@ class Settings:
         # Let Gemini pick a read-only tool when no pattern matched (API mode only).
         self.ENABLE_LLM_TOOL_ROUTING = _bool("ENABLE_LLM_TOOL_ROUTING", True)
 
+        # Agent mode (/agent) and the MCP server
+        self.AGENT_MAX_STEPS = _int("AGENT_MAX_STEPS", 6)
+        self.MCP_USER_ID = os.getenv("ORCHESTRIX_MCP_USER", "") or self.TELEGRAM_CHAT_ID or "mcp"
+        self.MCP_ALLOW_WRITE = _bool("ORCHESTRIX_MCP_ALLOW_WRITE", False)
+
         # Feature toggles
         self.ENABLE_WEB_SEARCH = _bool("ENABLE_WEB_SEARCH", True)
         self.ENABLE_VOICE = _bool("ENABLE_VOICE", True)

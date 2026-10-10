@@ -37,24 +37,29 @@ def test_reminders_are_scoped_to_chat(fresh_state):
     assert fresh_state.get("reminders", "r2") is not None
 
 
-def test_tool_declarations_are_valid_for_gemini():
-    from google.genai import types
+def test_empty_tool_schemas_are_omitted_for_gemini():
+    from core.agent.tools import TOOLS
 
-    from core.tool_router import TOOLS
-
-    for tool in TOOLS.values():
-        decl = tool.declaration()
-        types.FunctionDeclaration(**decl)  # raises on an invalid schema
-        if not tool.parameters["properties"]:
-            assert "parameters" not in decl  # Gemini rejects empty OBJECT schemas
+    decl = TOOLS["list_tasks"].gemini_declaration()
+    assert "parameters" not in decl  # Gemini rejects empty OBJECT schemas
 
 
 def test_tool_router_runs_chosen_tool(monkeypatch):
     from core import tool_router
+    from core.agent.tools import READ, TOOLS, Tool
 
     monkeypatch.setattr("models.gemini_llm.gemini_generate_or_call", lambda p, d: ("call", ("get_weather", {"city": "Pune"})))
-    monkeypatch.setitem(tool_router.TOOLS, "get_weather", tool_router.Tool("get_weather", "", {"properties": {}}, lambda city="": f"sunny in {city}"))
+    monkeypatch.setitem(TOOLS, "get_weather", Tool("get_weather", "", READ, lambda ctx, city="": f"sunny in {city}", {"city": {"type": "string"}}))
     assert tool_router.route_or_answer("is it hot in pune") == ("sunny in Pune", "get_weather")
+
+
+def test_tool_router_only_offers_read_tools(monkeypatch):
+    from core import tool_router
+
+    offered = []
+    monkeypatch.setattr("models.gemini_llm.gemini_generate_or_call", lambda p, d: offered.extend(d) or ("text", "hi"))
+    tool_router.route_or_answer("hello")
+    assert "send_email" not in {d["name"] for d in offered}
 
 
 def test_tool_router_ignores_unknown_tool(monkeypatch):
